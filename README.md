@@ -9,4 +9,4 @@ Features planned so far ar:
 - Log actions from users.
 - Reporting.
 
-This project is published under the [MIT-Licence](https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE)https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE)
+This project is published under the [MIT-Licence](https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE)

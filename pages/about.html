@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/style_about.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>about shopping 2.0</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="drop">
+                <p><a href="awarehouse.html" class="link">A-Warehouse</a></p>
+                <div href="link" class="dropContent link">
+                    <p><a href="pages/awarehouse.html">products</a></p>
+                    <p><a href="downloads/page2.html">special offers</a></p>
+                </div>
+            </div>
+            <div class="drop">
+                <p><a href="bewarehouse.html" class="link">B-Warehouse</a></p>
+                <div  class="dropContent">
+                    <p><a href="pages/bewarehouse.html">products</a></p>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="loginShower" id="loginShower">
+            <h1>Refurbish is responsibility.<h1>
+            <h3 id="vanishingInv" class="vanishingInv">contact</h3>
+            <form class="login" id="loginForm">
+                <ul>
+                    <li> 
+                        <label for="name">name:</label><br>
+                        <input type="text" id="name" name="name" placeholder="Max Mustermann"><br>
+                    </li>
+                    <li>
+                        <label for="email">eMail:</label><br>
+                        <input type="text" id="email" name="email" oninput="isValidMessage()" placeholder="your_email@whatsoever.com"><br>
+                    </li>
+                    <li>
+                        <label for="message">message:</label><br>
+                        <textarea name="message" id="message" cols="30" rows="10" oninput="isValidMessage()" placeholder="here write some nice greetings to me"></textarea>
+                    </li>
+                    <li>
+                        <button id="submitMess" disabled="true" onclick="sendMess()">submit</button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <section>
+            <div>
+                <h1>about us</h1>
+                <p><span style="font-size: xx-large; font-weight: 500;">We</span> believe in humanity to be able to stop the waste of all goods we're provided.<br>
+                    We refurbish goods and provide them to prices you can set yourself.<br>
+                    We expect everybody to be able to value what he deserves.<br>
+                    We want everybody to be able to get what's needed.<br>
+                </p>
+                <p><span style="font-size: xx-large; font-weight: 500;">You</span> can consider your payment as appreciation of the product and our imparting.<br>
+                    If you can afford feel free to consider the price you pay as a donation for others who own less.<br>
+                    If you don't have much and want to get a lot please give a reasonable comment on why.<br>
+                    Avarice will never hurt us, but probably you.<br>
+                </p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p><a href="#link" class="link">Impressum</a></p>
+        <p><a href="#link" class="link">Copyright</a></p>
+    </footer>
+    <script src="../script.js"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 # warehouse_project
-This is a project for the python-backend-developer course I'm currently makingat the DCI.
+This is a work in progress project for the python-backend-developer course I'm currently making at the [DCI](https://digitalcareerinstitute.org/).
+There is nothing to order, it is just for practicing purpose.
 It aims to become a fully functional prototype web application for a Warehouse Management System.
 
 Features planned so far ar:

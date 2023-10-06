@@ -1,0 +1,33 @@
+body {
+    background-color: rgb(66, 44, 1);
+    background-image: url(../Pics/bewarehouse.jpeg);
+}
+
+main h1 {
+    font-size: large;
+    color: rgba(237, 215, 172, 0.549);
+    margin-right: 50px;
+}
+
+main section {
+    margin-left: 21%;
+    margin-right: 9%;
+    margin-top: 20px;
+    justify-content: center;
+    text-align: center;
+    font-size: smaller;
+}
+
+.loginShower h3{
+    color: rgb(255, 212, 85);
+}
+
+header {
+    width: 59%;
+}
+
+@media screen and (min-width:600px) {
+    main section p {
+        font-size:medium;
+    }
+}

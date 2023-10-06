@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shopping 2.0</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="drop">
+                <p><a href="pages/about.html" class="link">about</a></p>
+            </div>
+            <div class="drop">
+                <p><a href="pages/awarehouse.html" class="link">A-Warehouse</a></p>
+                <div href="link" class="dropContent link">
+                    <p><a href="pages/awarehouse.html">products</a></p>
+                </div>
+            </div>
+            <div class="drop">
+                <p><a href="pages/bewarehouse.html" class="link">B-Warehouse</a></p>
+                <div  class="dropContent">
+                    <p><a href="pages/bewarehouse.html">products</a></p>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="loginShower" id="loginShower">
+            <h1>Refurbish is responsibility.<h1>
+            <h3 id="vanishingInv" class="vanishingInv">contact</h3>
+            <form class="login" id="loginForm">
+                <ul>
+                    <li> 
+                        <label for="name">name:</label><br>
+                        <input type="text" id="name" name="name" placeholder="Max Mustermann"><br>
+                    </li>
+                    <li>
+                        <label for="email">eMail:</label><br>
+                        <input type="text" id="email" name="email" oninput="isValidMessage()" placeholder="your_email@whatsoever.com"><br>
+                    </li>
+                    <li>
+                        <label for="message">message:</label><br>
+                        <textarea name="message" id="message" cols="30" rows="10" oninput="isValidMessage()" placeholder="here write some nice greetings to me"></textarea>
+                    </li>
+                    <li>
+                        <button id="submitMess" disabled="true" onclick="sendMess()">submit</button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <section>
+            <div>
+                <h1>Welcome to shopping 2.0</h1>
+                <h6 style="font-weight: 30;">The future of social marketing.</h6>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p><a href="#link" class="link">Impressum</a></p>
+        <p><a href="#link" class="link">Copyright</a></p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

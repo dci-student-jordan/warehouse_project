@@ -1,0 +1,208 @@
+.loginShower {
+    background-image: linear-gradient(to right, rgba(206, 206, 205, 0.084) ,rgba(163, 110, 4, 0.691));
+    height: 50px;
+    text-align: right;
+    font-size: xx-small;
+    margin: 0px;
+    padding: 20px;
+    transition: 0.3s;
+    top:-100px;
+}
+
+body {
+    background-color: rgb(66, 44, 1);
+    background-image: url(../Pics/sky.jpg);
+    background-attachment: fixed;
+    background-position-x: 56.5%;
+    background-position-y: 70%;
+    background-size: cover;
+    color: rgb(255, 212, 85);
+    text-shadow: 1px 3px 2px rgba(0, 0, 0, 0.721), 0 0 1em rgba(0, 0, 0, 0.464), 0 0 0.2em rgba(0, 0, 0, 0.43);
+    display: flex;
+    flex-direction: column;
+    min-height: 98vh;
+}
+
+header {
+    background-image: linear-gradient(rgba(66, 44, 1, 0.691), rgba(66, 44, 1, 0.084));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;    
+    font-style: italic;
+    margin: 5px;
+    width:67vw;
+    padding: 20px;
+    position:fixed;
+    color: rgba(229, 202, 147, 0.386);
+}
+
+.loginShower h1 {
+    font-size: small;
+    color: rgba(229, 202, 147, 0.386);
+    margin-right: 50px;
+}
+
+nav {
+    padding: 5px;
+    margin-top: 20px;
+    background-image: radial-gradient(rgba(93, 63, 3, 0.595) ,rgba(108, 73, 4, 0.429));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    font-size:small;
+    width: fit-content;
+}
+
+nav p {
+    min-width: 50%;
+    background-image: radial-gradient(rgba(96, 65, 2, 0.764) ,rgba(153, 125, 64, 0.417));
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    color: rgb(85, 85, 85);
+}
+nav a:hover {
+    color: rgb(197, 155, 71);
+    transform: scale(1.2);
+    transition: 0.2s ease;
+}
+
+a {
+    color: rgb(240, 231, 213);
+}
+
+.drop {
+    position: relative;
+    display: inline-block;
+    left: -25%;
+    transition: 0.3s;
+  }
+
+.drop:hover {
+    left: 0%;
+  }
+
+
+.dropContent {
+    position: absolute;
+    top: 0%;
+    display: none;
+    width: 100%;
+}
+
+.dropContent a {
+    color: rgb(244, 222, 182);
+    display: block;
+}
+
+.drop:hover .dropContent {
+    display: block;
+    left: 93%;
+    background-image: radial-gradient(rgba(77, 69, 53, 0.764) ,rgba(148, 128, 87, 0.511));
+}
+
+.login {
+    display: none;
+    top: 5px;
+    position: relative;
+    padding: 5px, 5px, 5px, 5px;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    font-size: small;
+    text-align: center;
+    color: white;
+    background-image: radial-gradient(rgba(204, 145, 28, 0.753),rgba(59, 47, 12, 0.753));
+}
+
+.login input, textarea, button {
+    background-color: rgb(85, 74, 52);
+    color: antiquewhite;
+    margin-right:30px;
+}
+
+ul {
+    list-style: none;
+}
+
+main {
+    flex-grow: 1;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+main section {
+    margin: 27px;
+    padding: 31px;
+    background-image: linear-gradient(to left, rgba(239, 222, 195, 0.429) ,rgba(66, 48, 5, 0.701));
+    font-size: x-large;
+}
+
+footer {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    text-align: right;
+    background-image: linear-gradient(to left,rgba(66, 44, 1, 0.691), rgba(191, 183, 166, 0.582));
+
+}
+
+footer a {
+    margin: 20px;
+    font-size: xx-small;
+}
+@media screen and (min-width:600px) {
+
+    nav {
+        justify-content: space-evenly;
+        flex-direction: row;
+        align-items: center;
+    }
+    .content {
+        width: 60%;
+    }
+
+    .login {
+        position: fixed;
+        right: 5px;
+    }
+
+    .login textarea {
+        width:fit-content;
+        height: 50px;
+        margin: 10px;
+    }
+
+    .drop {
+        left: 0%;
+    }
+
+    .drop:hover .dropContent {
+        left: 0%;
+        top: 100%;
+    }
+    
+    main section{
+        font-size: xx-large;
+    }
+
+    nav {
+        font-size: larger;
+    }
+
+    footer a {
+        font-size: medium;
+    }
+
+    .loginShower {
+        font-size: medium;
+    }
+
+    .loginShower h1 {
+        font-size: x-large;
+    }
+}

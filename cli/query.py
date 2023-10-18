@@ -106,6 +106,7 @@ def print_search_results(interest):
     if total_items == 0:
         # not found
         print("Sorry, but that's not in stock.")
+        if_order = "n"
     else:
         for matches in matches_per_warehouse:
             print_days_in_stock(matches_per_warehouse[matches], matches)

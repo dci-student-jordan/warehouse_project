@@ -30,15 +30,15 @@
                 <ul>
                     <li> 
                         <label for="name">name:</label><br>
-                        <input type="text" id="name" name="name" placeholder="Max Mustermann"><br>
+                        <input type="text" id="name" name="name" placeholder="Max Mustermann" oninput=isValidMessage()><br>
                     </li>
                     <li>
                         <label for="email">eMail:</label><br>
-                        <input type="text" id="email" name="email" oninput="isValidMessage()" placeholder="your_email@whatsoever.com"><br>
+                        <input type="text" id="email" name="email" oninput=isValidMessage() placeholder="your_email@whatsoever.com"><br>
                     </li>
                     <li>
                         <label for="message">message:</label><br>
-                        <textarea name="message" id="message" cols="30" rows="10" oninput="isValidMessage()" placeholder="here write some nice greetings to me"></textarea>
+                        <textarea name="message" id="message" cols="30" rows="10" oninput=isValidMessage() placeholder="here write some nice greetings to us"></textarea>
                     </li>
                     <li>
                         <button id="submitMess" disabled="true" onclick="sendMess()">submit</button>
@@ -52,7 +52,7 @@
                 <p>Explore our shop in Europe.<br><br>
                     Our offers are collected from donations, private people, misproductions and so on.<br><br>
                     You define what to pay.<br>
-                    Please place a reasonable prices and comment on why in case you cannot.<br>
+                    Please place reasonable prices and comment on why in case you cannot.<br>
                 </p>
             </div>
         </section>

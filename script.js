@@ -11,12 +11,15 @@ loginShower.addEventListener('mouseover', () => {
         loginShower.style.height = '300px';
 })
 
-    loginShower.addEventListener('mouseout', function () {
+
+function hideLogin() {
     loginForm.style.display = 'none'
     vanish.style.display = 'block';
     if (screen.width < 600)
         loginShower.style.height = '20%';
-})
+}
+
+loginShower.addEventListener('mouseout', () => hideLogin())
 
 
 // loginForm functionality
@@ -28,11 +31,16 @@ function isValidMessage () {
     if (isEmail &
         (document.querySelector('#message').value != "") &
         (document.querySelector('#name').value != "")) {
-            submitter.disabled = false;
+            submitter.textContent = "submit";
+            console.log("submittable");
     }
-    else submitter.disabled = true;
+    else submitter.textContent = "cancel";
 }
 
 function sendMess () {
-    window.location.href = "mailto:aware_shopping@world.earth"+"?subject=nicely submitted Mail by "+document.querySelector('#name').value+"&body="+document.querySelector('#message').value+"%0D%0A%0D%0AAnswer: "+document.querySelector('#email').value
+    button = document.querySelector('#submitMess');
+    if (button.textContent == "submit") {
+        window.location.href = "mailto:aware_shopping@world.earth"+"?subject=nicely submitted Mail by "+document.querySelector('#name').value+"&body="+document.querySelector('#message').value+"%0D%0A%0D%0AAnswer: "+document.querySelector('#email').value
+    }
+    else hideLogin()
 }

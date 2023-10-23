@@ -138,6 +138,8 @@ def browse_by_category():
 
 shopping_actions = []
 def go_shopping():
+    '''The actual shopping function, running until the user interrupts it,
+    storing made actions'''
     shopping = True
     # Get the user selection
     operation = get_selected_operation()

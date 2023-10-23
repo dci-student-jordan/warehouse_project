@@ -74,6 +74,10 @@ class User():
         return False
 
     def validate_user(self):
+        '''Takes a User class, compares the name with the registered users,
+        offers the opteion to chang the name
+        and asks for the password.
+        Returns Employee if successfully authenticated or None'''
         personnel = Loader(model="personnel")
         personnel_names = [str(x) for x in personnel]
         def ask_password(mess):
@@ -84,6 +88,7 @@ class User():
                 if staff.is_named(str(self)) and staff.authenticate(password):
                     staff.is_authenticated = True
                     # here we return an authenticated Employee
+                    print("Success")
                     return staff
             else:
                 ask_again = input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
@@ -104,7 +109,7 @@ class User():
                 return self.validate_user()
             elif not change_name == "n":
                 printer.print_error()
-                return False
+                return None
     
     def is_named(self, name: str):
         return name == self._name

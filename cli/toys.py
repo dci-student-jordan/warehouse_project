@@ -1,7 +1,6 @@
 # toys
 import time, sys
 
-
 def glued_string(add_glue):
     """Takes a string and returns it prefixed with 'A' or 'An'
     according to the first character being a vowel or an h or not."""
@@ -44,3 +43,6 @@ class PrinterToy():
         for line in lines:
             print(line)
             time.sleep(self.print_speed)
+
+    def print_error(self):
+        print(Color.FAIL + "\nError: The operation you entered is not valid." + Color.END)

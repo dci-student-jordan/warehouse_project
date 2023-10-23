@@ -1,6 +1,8 @@
 from datetime import datetime as dt
 from toys import Color, PrinterToy, glued_string
 import time
+from loader import Loader
+import pwinput as pw
 
 printer = PrinterToy(0.0005)
 
@@ -70,6 +72,40 @@ class User():
 
     def authenticate(self, password: str):
         return False
+
+    def validate_user(self):
+        personnel = Loader(model="personnel")
+        personnel_names = [str(x) for x in personnel]
+        def ask_password(mess):
+            nonlocal self
+            printer.print_like_typed(mess)
+            password = pw.pwinput(mask="*")
+            for staff in personnel:
+                if staff.is_named(str(self)) and staff.authenticate(password):
+                    staff.is_authenticated = True
+                    # here we return an authenticated Employee
+                    return staff
+            else:
+                ask_again = input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
+                if ask_again == "y":
+                    ask_password(f"Please enter your correct password, {str(self)}: ")
+                else:
+                    printer.print_error()
+                    return False
+        if str(self) in personnel_names:
+            auth = ask_password(f"Please log in with your password, {str(self)}. ")
+            return auth
+        else:
+            change_name = input(f"You're not registered, {str(self)}, wanna change your name? (y/n): ")
+            if change_name == "y":
+                self = User(input("Ok, whats your login-name, then? "))
+                return self.validate_user()
+            elif change_name in personnel_names:
+                self = User(change_name)
+                return self.validate_user()
+            elif not change_name == "n":
+                printer.print_error()
+                return False
     
     def is_named(self, name: str):
         return name == self._name
@@ -114,3 +150,33 @@ class Employee(User):
         if actions:
             print(Color.ITALIC + "In this session you have:" + Color.END)
             printer.print_line_by_line(actions)
+
+    def order_item(self, max_items, order, interest):
+            """takes an int for the maximum available items,
+            a string representing either the number of items to be ordered
+            or simply the request to do so ('y')
+            and the users interest as string
+            and places the order.
+            Returns an int of the successful ordered items."""
+            # if not self.is_authenticated:
+            #     if not self.authenticate(pw.pwinput(mask="*")):
+            #         return 0
+            # order needs amount:
+            if not order.isdigit():
+                order = input(f"How many {interest} items do you want to purchase? (number): ")
+            if not order.isdigit():
+                    # invalid input
+                    printer.print_error()
+                    return 0
+            else:
+                # try to order either requested amount...
+                if int(order) >= max_items:
+                    order = max_items
+                    reorder = input(Color.FAIL + f"Error: Your requested too many items, do you want to order the maximum of {max_items} {interest} items instead? (y/n): " + Color.END)
+                    if not reorder.lower() == "y":
+                        # ... or give up
+                        return 0
+                # print successful order
+                items = "item" if order == "1" else "items"
+                print(Color.OKGREEN + f"\nCongratulation! Your order for {order} {interest} {items} has ben placed." + Color.END)
+                return int(order)

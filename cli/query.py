@@ -8,7 +8,6 @@ for item in warehouse1:
 """
 
 import time, sys, datetime
-import pwinput as pw
 from classes import User, Employee
 from loader import Loader
 from toys import Color, PrinterToy, glued_string
@@ -17,7 +16,6 @@ from toys import Color, PrinterToy, glued_string
 printer = PrinterToy(0.0005)
 
 stock = Loader(model="stock")
-personnel = Loader(model="personnel")
 
 # Show the menu and ask to pick a choice
 def get_selected_operation():
@@ -25,8 +23,6 @@ def get_selected_operation():
     returns the choice as string"""
     printer.print_like_typed("\nHere you can chose from one of three options:\n\n1. List items by warehouse,\n2. Search an item and place an order\n3. Browse items by category\n4. Quit.\n\n")
     return input("Which of these options do you want to chose? (1/2/3/4): ")
-
-show_error = False
 
 
 def print_search_results(interest):
@@ -58,88 +54,6 @@ def print_search_results(interest):
             print(Color.BOLD + f"In {most_items_warehouse} you find the most ({max_items}):\n" + Color.END)
     return total_items
 
-def validate_user(username):
-    personnel_names = [str(x) for x in personnel]
-    global show_error
-    def ask_password(mess):
-        nonlocal username
-        global show_error
-        printer.print_like_typed(mess)
-        password = pw.pwinput(mask="*")
-        for staff in personnel:
-            if staff.is_named(str(username)) and staff.authenticate(password):
-                globals()["username"] = staff
-                return True
-        else:
-            ask_again = input(Color.FAIL + f"Sorry, {str(username)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
-            if ask_again == "y":
-                ask_password(f"Please enter your correct password, {str(username)}: ")
-            else:
-                show_error = True
-                return False
-    if str(username) in personnel_names:
-        print
-        auth = ask_password(f"Please log in with your password, {str(username)}. ")
-        return auth
-    else:
-        change_name = input(f"You're not registered, {str(username)}, wanna change your name? (y/n): ")
-        if change_name == "y":
-            username = User(input("Ok, whats your login-name, then? "))
-            return validate_user(str(username))
-        elif change_name in personnel_names:
-            username = User(change_name)
-            return validate_user(str(username))
-        elif not change_name == "n":
-            show_error = True
-            return False
-
-def login(func):
-    logged_in = False
-
-    def wrapper(*args):
-        nonlocal logged_in
-        if not logged_in:
-            # login needed
-            logged_in = validate_user(str(username))
-            if logged_in:
-                return func(*args)
-            else:
-                return None
-        else:
-            # user already logged in
-            return func(*args)
-    
-    return wrapper
-
-@login
-def order_item(max_items, order, interest):
-        """takes an int for the maximum available items,
-        a string representing either the number of items to be ordered
-        or simply the request to do so ('y')
-        and the users interest as string
-        and places the order.
-        Returns an int of the successful ordered items."""
-        global show_error
-        # order needs amount:
-        if not order.isdigit():
-            order = input(f"How many {interest} items do you want to purchase? (number): ")
-        if not order.isdigit():
-                # invalid input
-                show_error = True
-                return 0
-        else:
-            # try to order either requested amount...
-            if int(order) >= max_items:
-                order = max_items
-                reorder = input(Color.FAIL + f"Error: Your requested too many items, do you want to order the maximum of {max_items} {interest} items instead? (y/n): " + Color.END)
-                if not reorder.lower() == "y":
-                    # ... or give up
-                    return 0
-            # print successful order
-            items = "item" if order == "1" else "items"
-            print(Color.OKGREEN + f"\nCongratulation! Your order for {order} {interest} {items} has ben placed." + Color.END)
-            return int(order)
-
 
 def search_item():
     """Asks user to input his interest,
@@ -156,10 +70,19 @@ def search_item():
         if_order = input("Do you want to place an offer? (y/n): ")
         # a number is also accepted...
         if (if_order == "y" or if_order.isdigit()):
+            global username
+            if not username.is_authenticated:
+                validation = username.validate_user()
+                if (validation):
+                    username = validation
+                else:
+                    return
             # start the order
-            order_successful = order_item(search_results, if_order, interest)
+            order_successful = username.order_item(search_results, if_order, interest)
             if order_successful:
                 return f"Ordered {order_successful} {interest} items." if order_successful > 1 else f"Ordered {glued_string(interest).lower()} item."
+        elif not if_order == "n":
+            printer.print_error()
     if not order_successful:
         return f"Searched {glued_string(interest).lower()} item." if not (interest == "n") else None
 
@@ -195,7 +118,7 @@ def browse_by_category():
     # aks for input (number) which category to search
     browse = input(Color.OKCYAN + "\n" + f"Which category do you want to browse? {options}" + Color.END)
     # print items in the category or let an error be shown for invalid input
-    if browse.isdigit():
+    if browse.isdigit() and int(browse) < len(categories):
         # first get the category name
         category = ""
         for cat in categories:
@@ -208,9 +131,7 @@ def browse_by_category():
             print(glued_string(str(item)))
         return category
     else:
-        global show_error
-        show_error = True
-
+        printer.print_error()
 
 
 #### the shopping loop ####
@@ -218,9 +139,6 @@ def browse_by_category():
 shopping_actions = []
 def go_shopping():
     shopping = True
-    global show_error
-    def print_error():
-        print(Color.FAIL + "\nError: The operation you entered is not valid." + Color.END)
     # Get the user selection
     operation = get_selected_operation()
     # If they pick 1
@@ -243,22 +161,18 @@ def go_shopping():
             shopping_actions.append(f"Browsed the category {category}.")
     # Else quit, with error in case of invalid input
     elif not operation == "4":
-        show_error = True
+        printer.print_error()
     else:
         shopping = False
-    
-    if show_error:
-        print_error()
 
     if shopping:
         shop_on = input(Color.OKCYAN + "\nDo you want to explore our warehouse 2.0 some more? (y/n): " + Color.END)
         if shop_on.lower() == "y":
-            show_error = False
             go_shopping()
         elif shop_on == "n":
             pass
         else:
-            print_error()
+            printer.print_error()
             go_shopping()
 
 
@@ -266,7 +180,6 @@ def go_shopping():
 
 # Get the user name
 username = User(input("Please enter your name here: "))
-
 # Greet him
 username.greet()
 # send him into nirvana:

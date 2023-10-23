@@ -88,13 +88,12 @@ class User():
             else:
                 ask_again = input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
                 if ask_again == "y":
-                    ask_password(f"Please enter your correct password, {str(self)}: ")
+                    return ask_password(f"Please enter your correct password, {str(self)}: ")
                 else:
                     printer.print_error()
                     return False
         if str(self) in personnel_names:
-            auth = ask_password(f"Please log in with your password, {str(self)}. ")
-            return auth
+            return ask_password(f"Please log in with your password, {str(self)}. ")
         else:
             change_name = input(f"You're not registered, {str(self)}, wanna change your name? (y/n): ")
             if change_name == "y":

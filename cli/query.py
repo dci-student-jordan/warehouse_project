@@ -118,7 +118,7 @@ def browse_by_category():
     # aks for input (number) which category to search
     browse = input(Color.OKCYAN + "\n" + f"Which category do you want to browse? {options}" + Color.END)
     # print items in the category or let an error be shown for invalid input
-    if browse.isdigit() and int(browse) < len(categories):
+    if browse.isdigit() and int(browse) <= len(categories) and int(browse) > 0:
         # first get the category name
         category = ""
         for cat in categories:

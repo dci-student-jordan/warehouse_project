@@ -52,6 +52,7 @@ class Warehouse():
         print(Color.OKBLUE + "Here's a list of our products in", str(self), ":\n" + Color.END)
         printer.print_line_by_line(self.stock)
         print(Color.OKGREEN + f"\nTotal amount of items in {str(self)}: {self.occupancy()}\n" + Color.END)
+        time.sleep(0.3)
 
     def print_interest_with_days_in_stock(self, interest):
         """Prints each item of interest with its location
@@ -71,11 +72,12 @@ class User():
         self.is_authenticated = False
 
     def authenticate(self, password: str):
+        '''Will always return False for users'''
         return False
 
     def validate_user(self):
         '''Takes a User class, compares the name with the registered users,
-        offers the opteion to chang the name
+        offers the option to change the name if not
         and asks for the password.
         Returns Employee if successfully authenticated or None'''
         personnel = Loader(model="personnel")
@@ -88,33 +90,42 @@ class User():
                 if staff.is_named(str(self)) and staff.authenticate(password):
                     staff.is_authenticated = True
                     # here we return an authenticated Employee
-                    print("Success")
                     return staff
             else:
+                # wrong password, try again
                 ask_again = input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
                 if ask_again == "y":
                     return ask_password(f"Please enter your correct password, {str(self)}: ")
                 else:
+                    # wrong input or refusal
                     printer.print_error()
                     return False
         if str(self) in personnel_names:
+            # login
             return ask_password(f"Please log in with your password, {str(self)}. ")
         else:
+            # option to change name
             change_name = input(f"You're not registered, {str(self)}, wanna change your name? (y/n): ")
             if change_name == "y":
+                # recreate User object with new name
                 self = User(input("Ok, whats your login-name, then? "))
                 return self.validate_user()
             elif change_name in personnel_names:
+                # also accept a name if in personnel and retry validation with new User object
                 self = User(change_name)
                 return self.validate_user()
             elif not change_name == "n":
+                # invalid input, get out of here
                 printer.print_error()
                 return None
     
     def is_named(self, name: str):
+        '''takes a name as string and returns a boolean
+        comparing it with the objects name variable'''
         return name == self._name
     
     def greet(self):
+        '''Prints a greeting'''
         printer.print_like_typed("\n" + Color.ITALIC + f"Hello, {self._name}!\n"+\
         "Welcome to our Warehouse Database.\n"+\
         "If you don't find what you are looking for,\n"+\
@@ -136,7 +147,8 @@ class Employee(User):
         super().__init__(user_name)
 
     def authenticate(self, password: str):
-        # print("trying to log in")
+        '''Takes a password as string
+        returns a boolean comparing it with the objects private password string'''
         return password == self.__password
     
     def order(item: WarehouseItem, amount: int):
@@ -150,6 +162,8 @@ class Employee(User):
         "please contact technical support." + Color.END + "\n")
 
     def bye(self, actions: list):
+        '''Takes a list of strings
+        to be printed as user actions'''
         super().bye(actions)
         if actions:
             print(Color.ITALIC + "In this session you have:" + Color.END)
@@ -162,9 +176,6 @@ class Employee(User):
             and the users interest as string
             and places the order.
             Returns an int of the successful ordered items."""
-            # if not self.is_authenticated:
-            #     if not self.authenticate(pw.pwinput(mask="*")):
-            #         return 0
             # order needs amount:
             if not order.isdigit():
                 order = input(f"How many {interest} items do you want to purchase? (number): ")

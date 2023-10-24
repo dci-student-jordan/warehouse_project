@@ -72,10 +72,13 @@ def search_item():
         if (if_order == "y" or if_order.isdigit()):
             global username
             if not username.is_authenticated:
+                # this will either return an authenticated Employee class or None
                 validation = username.validate_user()
                 if (validation):
+                    # Make our user an Employee
                     username = validation
                 else:
+                    # validation failed, get out of here
                     return
             # start the order
             order_successful = username.order_item(search_results, if_order, interest)
@@ -136,12 +139,12 @@ def browse_by_category():
 
 #### the shopping loop ####
 
-shopping_actions = []
-def go_shopping():
-    '''The actual shopping function, running until the user interrupts it,
-    storing made actions'''
+def go_shopping(actions):
+    '''The actual shopping function:
+    Takes and returns a list of previously made shopping actions
+    and runs recursively until the user interrupts it'''
     shopping = True
-    # Get the user selection
+    # offer options menu
     operation = get_selected_operation()
     # If they pick 1
     if operation == "1":
@@ -150,33 +153,36 @@ def go_shopping():
             total_items += warehouse.occupancy()
             warehouse.list_warehouse()
         print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
-        shopping_actions.append(f"Listed the {total_items} items of our {len(list(stock))} warehouses.")
+        actions.append(f"Listed the {total_items} items of our {len(list(stock))} warehouses.")
     # Else, if they pick 2
     elif operation == "2":
         search = search_item()
         if search:
-            shopping_actions.append(search)
+            actions.append(search)
     # Else, if they pick 3
     elif operation == "3":
         category = browse_by_category()
         if category:
-            shopping_actions.append(f"Browsed the category {category}.")
+            actions.append(f"Browsed the category {category}.")
     # Else quit, with error in case of invalid input
     elif not operation == "4":
         printer.print_error()
     else:
+        # user interruption from options menu
         shopping = False
+        return actions
 
     if shopping:
         shop_on = input(Color.OKCYAN + "\nDo you want to explore our warehouse 2.0 some more? (y/n): " + Color.END)
         if shop_on.lower() == "y":
-            go_shopping()
+            return go_shopping(actions)
         elif shop_on == "n":
-            pass
+            # user interruption
+            return actions
         else:
+            # wrong input
             printer.print_error()
-            go_shopping()
-
+            return go_shopping(actions)
 
 ################## HERE WE GO: ##################
 
@@ -184,7 +190,7 @@ def go_shopping():
 username = User(input("Please enter your name here: "))
 # Greet him
 username.greet()
-# send him into nirvana:
-go_shopping()
-# Thank the user for the visit
-username.bye(shopping_actions)
+# send him into nirvana
+shopping = go_shopping([])
+# print a goodbye afterwards
+username.bye(shopping)

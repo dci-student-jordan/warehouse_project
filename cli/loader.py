@@ -54,14 +54,14 @@ class Loader:
 
     def __parse_stock(self):
         """Parse the stock."""
-        WarehouseItem = self.__load_class("WarehouseItem")
+        Item = self.__load_class("Item")
         Warehouse = self.__load_class("Warehouse")
         warehouses = {}
         for item in items:
             warehouse_id = str(item["warehouse"])
             if warehouse_id not in warehouses.keys():
                 warehouses[warehouse_id] = Warehouse(warehouse_id)
-            warehouses[warehouse_id].add_item(WarehouseItem(**item))
+            warehouses[warehouse_id].add_item(Item(**item))
         return list(warehouses.values())
 
     def __iter__(self, *args, **kwargs):

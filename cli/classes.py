@@ -6,7 +6,7 @@ import pwinput as pw
 
 printer = PrinterToy(0.0005)
 
-class WarehouseItem():
+class Item():
 
     def __init__(self, state: str, category: str, warehouse: int, date_of_stock: dt) -> None:
         self.state = state
@@ -21,8 +21,11 @@ class WarehouseItem():
 
 class Warehouse():
 
-    def __init__(self, id: int) -> None:
-        self.id = id
+    def __init__(self, id=0) -> None:
+        if int(id) > 0:
+            self.id = id
+        else:
+            self.id = None
         self.stock = []
         self.items_of_interest = {}
 
@@ -30,7 +33,7 @@ class Warehouse():
         '''Return the number of items in the stock.'''
         return len(self.stock)
     
-    def add_item(self, item: WarehouseItem):
+    def add_item(self, item: Item):
         '''Add an Item to the stock.'''
         self.stock.append(item)
 
@@ -39,7 +42,7 @@ class Warehouse():
         if not search_term in self.items_of_interest:
             # clear
             self.items_of_interest = {}
-            # recreate
+            # recreate (I do so to prevent recreation in case of twice the same interest entered)
             self.items_of_interest[search_term] = [x for x in self.stock if search_term.lower() in str(x).lower()]
         return self.items_of_interest[search_term]
     
@@ -51,8 +54,8 @@ class Warehouse():
         and the sum of items afterwards."""
         print(Color.OKBLUE + "Here's a list of our products in", str(self), ":\n" + Color.END)
         printer.print_line_by_line(self.stock)
-        print(Color.OKGREEN + f"\nTotal amount of items in {str(self)}: {self.occupancy()}\n" + Color.END)
-        time.sleep(0.3)
+        print(Color.OKGREEN + f"\nTotal amount of items in {str(self)}: {self.occupancy()}.\n" + Color.END)
+        time.sleep(printer.print_speed*60)
 
     def print_interest_with_days_in_stock(self, interest):
         """Prints each item of interest with its location
@@ -61,13 +64,13 @@ class Warehouse():
             today = dt.now()
             for match in self.items_of_interest[interest]:
                     days_in_stock = today - dt.strptime(match.date_of_stock, "%Y-%m-%d %H:%M:%S")
-                    print(f" {glued_string(str(match))} located in " +Color.UNDERLINE + "Warehouse"+str(self) + Color.END + f" (in stock for {days_in_stock.days} days)")
+                    print(f" {glued_string(str(match))} located in " + Color.UNDERLINE + str(self) + Color.END + f" (in stock for {days_in_stock.days} days)")
                     time.sleep(printer.print_speed)
     
 
 class User():
 
-    def __init__(self, user_name: str) -> None:
+    def __init__(self, user_name: str, *args) -> None:
         self._name = "Anonymous" if not len(user_name) else user_name
         self.is_authenticated = False
 
@@ -75,13 +78,13 @@ class User():
         '''Will always return False for users'''
         return False
 
-    def validate_user(self):
+    def validate_user(self, *args):
         '''Takes a User class, compares the name with the registered users,
         offers the option to change the name if not
         and asks for the password.
         Returns Employee if successfully authenticated or None'''
-        personnel = Loader(model="personnel")
-        personnel_names = [str(x) for x in personnel]
+        personnel = Loader(model="personnel") if len(args) < 1 else args[0]
+        personnel_names = [str(x) for x in personnel] if len(args) < 2 else args[1]
         def ask_password(mess):
             nonlocal self
             printer.print_like_typed(mess)
@@ -99,7 +102,7 @@ class User():
                 else:
                     # wrong input or refusal
                     printer.print_error()
-                    return False
+                    return None
         if str(self) in personnel_names:
             # login
             return ask_password(f"Please log in with your password, {str(self)}. ")
@@ -137,21 +140,29 @@ class User():
 
     def __str__(self) -> str:
         return self._name
+    
+    def __repr__(self) -> str:
+        return self._name
 
 class Employee(User):
 
     def __init__(self, user_name: str, password: str, **args) -> None:
-        self.__password = password
+        if password:
+            self.__password = password
         if "head_of" in args:
-            self.head_of = args["head_of"]
+            self.head_of = [Employee(**employee) for employee in args["head_of"]]
+        else:
+            self.head_of = None if not password else []
         super().__init__(user_name)
 
     def authenticate(self, password: str):
         '''Takes a password as string
         returns a boolean comparing it with the objects private password string'''
-        return password == self.__password
+        if not password == "":
+            self.is_authenticated = (password == self.__password)
+        return self.is_authenticated
     
-    def order(item: WarehouseItem, amount: int):
+    def order(item: Item, amount: int):
         # print successful order
         items = "item" if amount == 1 else "items"
         print(Color.OKGREEN + f"\nThe order for {amount} {item} {items} has ben placed." + Color.END)

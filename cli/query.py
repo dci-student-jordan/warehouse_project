@@ -1,14 +1,6 @@
-"""Command line interface to query the stock.
+"""Command line interface to query the stock."""
 
-To iterate the source data you can use the following structure:
-
-for item in warehouse1:
-    # Your instructions here.
-    # The `item` name will contain each of the strings (item names) in the list.
-"""
-
-import time, sys, datetime
-from classes import User, Employee
+from classes import User
 from loader import Loader
 from toys import Color, PrinterToy, glued_string
 
@@ -21,9 +13,19 @@ stock = Loader(model="stock")
 def get_selected_operation():
     """Shows a menu of options and asks for input,
     returns the choice as string"""
-    printer.print_like_typed("\nHere you can chose from one of three options:\n\n1. List items by warehouse,\n2. Search an item and place an order\n3. Browse items by category\n4. Quit.\n\n")
+    printer.print_like_typed("\nHere you can chose from one of three options:\n\n\
+                             1. List items by warehouse,\n\
+                             2. Search an item and place an order\n\
+                             3. Browse items by category\n\
+                             4. Quit.\n\n")
     return input("Which of these options do you want to chose? (1/2/3/4): ")
 
+def list_items_per_warehouse():
+        total_items = 0
+        for warehouse in stock:
+            total_items += warehouse.occupancy()
+            warehouse.list_warehouse()
+        print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
 
 def print_search_results(interest):
     """Takes a string, prints out matching search results
@@ -38,6 +40,7 @@ def print_search_results(interest):
         max_items = max_items if max_items > length else length
         total_items += length
         most_items_warehouse = most_items_warehouse if length < max_items else str(warehouse)
+        num_warehouses += 1
 
     if total_items == 0:
         # not found
@@ -51,7 +54,7 @@ def print_search_results(interest):
             print(" in", most_items_warehouse)
         else:
             print(" in our warehouses!")
-            print(Color.BOLD + f"In {most_items_warehouse} you find the most ({max_items}):\n" + Color.END)
+            print(Color.BOLD + f"In {most_items_warehouse} you find the most ({max_items}).\n" + Color.END)
     return total_items
 
 
@@ -74,7 +77,7 @@ def search_item():
             if not username.is_authenticated:
                 # this will either return an authenticated Employee class or None
                 validation = username.validate_user()
-                if (validation):
+                if validation and not validation == username:
                     # Make our user an Employee
                     username = validation
                 else:
@@ -83,10 +86,13 @@ def search_item():
             # start the order
             order_successful = username.order_item(search_results, if_order, interest)
             if order_successful:
+                # return order as shopping action
                 return f"Ordered {order_successful} {interest} items." if order_successful > 1 else f"Ordered {glued_string(interest).lower()} item."
         elif not if_order == "n":
+            # invalid input, get out o' here
             printer.print_error()
     if not order_successful:
+        # return search as shopping action
         return f"Searched {glued_string(interest).lower()} item." if not (interest == "n") else None
 
 def browse_by_category():
@@ -121,13 +127,19 @@ def browse_by_category():
     # aks for input (number) which category to search
     browse = input(Color.OKCYAN + "\n" + f"Which category do you want to browse? {options}" + Color.END)
     # print items in the category or let an error be shown for invalid input
-    if browse.isdigit() and int(browse) <= len(categories) and int(browse) > 0:
+    if (browse.isdigit() and int(browse) <= len(categories) and int(browse) > 0) or browse in categories:
         # first get the category name
         category = ""
         for cat in categories:
-            if categories[cat][0] == int(browse):
+            # also accept category names
+            if not browse.isdigit() and cat == browse:
                 category = cat
                 break
+            # option number
+            elif browse.isdigit():
+                if categories[cat][0] == int(browse):
+                    category = cat
+                    break
         # print out he items
         print(Color.BOLD + f"\nHere is a list of all items in category '{category.lower()}' of all our warehouses:\n" + Color.END)
         for item in categories[category][1]:
@@ -136,6 +148,16 @@ def browse_by_category():
     else:
         printer.print_error()
 
+def check_for_employee(user:User):
+    '''Takes a User, compares his name with the names of Employees
+    and provides the option to login'''
+    personnel = Loader(model="personnel")
+    personnel_names = [str(x) for x in personnel]
+    if str(user) in personnel_names:
+        log_option = input(f"It seems you're an Employee, {str(user)}, do you want to log in now? (y/n): ")
+        if log_option == "y":
+            user = user.validate_user(personnel, personnel_names) # we pass these to prevent unnecessary loading
+    return user
 
 #### the shopping loop ####
 
@@ -148,11 +170,7 @@ def go_shopping(actions):
     operation = get_selected_operation()
     # If they pick 1
     if operation == "1":
-        total_items = 0
-        for warehouse in stock:
-            total_items += warehouse.occupancy()
-            warehouse.list_warehouse()
-        print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
+        total_items = list_items_per_warehouse()
         actions.append(f"Listed the {total_items} items of our {len(list(stock))} warehouses.")
     # Else, if they pick 2
     elif operation == "2":
@@ -183,14 +201,22 @@ def go_shopping(actions):
             # wrong input
             printer.print_error()
             return go_shopping(actions)
+        
+def get_user() -> User:
+    return User(input("Please enter your name here: "))
 
 ################## HERE WE GO: ##################
 
-# Get the user name
-username = User(input("Please enter your name here: "))
-# Greet him
-username.greet()
-# send him into nirvana
-shopping = go_shopping([])
-# print a goodbye afterwards
-username.bye(shopping)
+def main():
+    # Get the user name
+    username = get_user()
+    # Greet him
+    username = check_for_employee(username)
+    username.greet()
+    # send him into nirvana
+    shopping = go_shopping([])
+    # print a goodbye afterwards
+    username.bye(shopping)
+
+if __name__ == "__main__":
+    main()

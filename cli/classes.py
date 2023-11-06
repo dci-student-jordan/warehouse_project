@@ -55,7 +55,7 @@ class Warehouse():
         print(Color.OKBLUE + "Here's a list of our products in", str(self), ":\n" + Color.END)
         printer.print_line_by_line(self.stock)
         print(Color.OKGREEN + f"\nTotal amount of items in {str(self)}: {self.occupancy()}.\n" + Color.END)
-        time.sleep(printer.print_speed*60)
+        time.sleep(printer.print_speed*600)
 
     def print_interest_with_days_in_stock(self, interest):
         """Prints each item of interest with its location

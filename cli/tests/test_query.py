@@ -79,42 +79,59 @@ class TestQuery (unittest.TestCase):
         with mock_output(printed_answer):
             list_items_per_warehouse()
             self.assertIn("Listed 5000 items of our 4 warehouses.", printed_answer[-1])
-            self.assertIn("Total amount of items in Warehouse4: 1223.", printed_answer[-2])
-            # The others are printed at the end of each call per warehouse,
-            # we'll have to seek for them:
-            check_others = ["Total amount of items in Warehouse1: 1346.",
+            # we'll have to seek for the following lines:
+            check_item_nums = ["Total amount of items in Warehouse1: 1346.",
                             "Total amount of items in Warehouse2: 1258.",
-                            "Total amount of items in Warehouse3: 1173."]
-            for printed in printed_answer[:-2]:
-                if not check_others:
+                            "Total amount of items in Warehouse3: 1173.",
+                            "Total amount of items in Warehouse4: 1223."]
+            for printed in printed_answer[:-1]:
+                if not check_item_nums:
+                    # 4: all found, done
                     break
-                if check_others[0] in printed:
-                    check_others.remove(check_others[0])
+                if check_item_nums[0] in printed:
+                    # 1, 2, 3:
+                    # First we check for the number to be equal the length of the warehouses' stock...
+                    check_item_house = int(check_item_nums[0].split()[-2][-2:-1])-1
+                    num_items = int(check_item_nums[0].split()[-1][:-1])
+                    self.assertEqual(num_items, self.stock[check_item_house].occupancy())
+                    # ...then we remove what we found
+                    check_item_nums.remove(check_item_nums[0])
             # check if all were found:
-            self.assertEqual(len(check_others), 0)
+            self.assertEqual(len(check_item_nums), 0)
+
+    def sort_dict(self, list_to_sort):
+        sorted_dict ={
+            "Warehouse1":[],
+            "Warehouse2":[],
+            "Warehouse3":[],
+            "Warehouse4":[]
+        }
+        # sort the result per warehouse
+        for line in list_to_sort:
+            for key in sorted_dict:
+                if key in line:
+                    # We have to exclude the most items warehouse print
+                    if not "you find the most" in line:
+                        sorted_dict[key].append(line)
+                        break
+                    # This is for testing list_warehouses:
+        return sorted_dict
     
     def test_search_item(self):
         with mock_input("ios"):
             all_ios_items = []
             with mock_output(all_ios_items):
                 search_item()
-            sorted_dict ={
-                "Warehouse1":[],
-                "Warehouse2":[],
-                "Warehouse3":[],
-                "Warehouse4":[]
-            }
-            # sort the result per warehouse
-            for line in all_ios_items:
-                for key in sorted_dict:
-                    if key in line:
-                        # We have to exclude the most items warehouse print
-                        if not "you find the most" in line:
-                            sorted_dict[key].append(line)
-                            break
+            sorted = self.sort_dict(all_ios_items)
             for warehouse in self.stock:
-                self.assertEqual(len(sorted_dict[str(warehouse)]), len(warehouse.search("ios")))
+                # now we can do the actual testing
+                self.assertEqual(len(sorted[str(warehouse)]), len(warehouse.search("ios")))
 
+
+    def test_print_warehouse_list(self):
+        # have a look above...
+        pass
+        
         
 
 if __name__ == '__main__':

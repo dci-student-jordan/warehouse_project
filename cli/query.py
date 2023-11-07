@@ -26,6 +26,7 @@ def list_items_per_warehouse():
             total_items += warehouse.occupancy()
             warehouse.list_warehouse()
         print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
+        return total_items
 
 def print_search_results(interest):
     """Takes a string, prints out matching search results
@@ -57,40 +58,51 @@ def print_search_results(interest):
             print(Color.BOLD + f"In {most_items_warehouse} you find the most ({max_items}).\n" + Color.END)
     return total_items
 
+def ask_for_placing_order(search_results, interest):
+    """
+    Asks whether to place an order, checks or asks for authentication
+    and starts the order it in case.
+    Returns the successful order or None if refused"""
+    order_successful = False
+    # ask whether to place an order
+    if_order = input("Do you want to place an offer? (y/n): ")
+    # a number is also accepted...
+    if (if_order == "y" or if_order.isdigit()):
+        global username
+        if not username.is_authenticated:
+            # this will either return an authenticated Employee class or None
+            validation = username.validate_user()
+            if validation and not validation == username:
+                # Make our user an Employee
+                username = validation
+            else:
+                # validation failed, get out of here
+                return
+        # start the order
+        order_successful = username.order_item(search_results, if_order, interest)
+        if order_successful:
+            # return order as shopping action
+            return f"Ordered {order_successful} {interest} items." if order_successful > 1 else f"Ordered {glued_string(interest).lower()} item."
+    elif not if_order == "n":
+        # invalid input, get out o' here
+        printer.print_error()
+    return order_successful
+
 
 def search_item():
     """Asks user to input his interest,
-    makes a call to print matching results,
-    asks whether to place an order and starts it in case,
-    finally returns the interest as string or None if order is refused"""
+    makes a call to print matching results
+    and a call whether to place an order,
+    finally returns the order if successful or the search interest as string"""
     # ask for interest
     interest = input("What are you looking for? (eg. Monitor, elegant, Second Hand...): ")
     # print all matches
     search_results = print_search_results(interest)
     order_successful = False
     if search_results:
-        # ask whether to place an order
-        if_order = input("Do you want to place an offer? (y/n): ")
-        # a number is also accepted...
-        if (if_order == "y" or if_order.isdigit()):
-            global username
-            if not username.is_authenticated:
-                # this will either return an authenticated Employee class or None
-                validation = username.validate_user()
-                if validation and not validation == username:
-                    # Make our user an Employee
-                    username = validation
-                else:
-                    # validation failed, get out of here
-                    return
-            # start the order
-            order_successful = username.order_item(search_results, if_order, interest)
-            if order_successful:
-                # return order as shopping action
-                return f"Ordered {order_successful} {interest} items." if order_successful > 1 else f"Ordered {glued_string(interest).lower()} item."
-        elif not if_order == "n":
-            # invalid input, get out o' here
-            printer.print_error()
+        order_successful = ask_for_placing_order(search_results, interest)
+        if order_successful:
+            return order_successful
     if not order_successful:
         # return search as shopping action
         return f"Searched {glued_string(interest).lower()} item." if not (interest == "n") else None
@@ -100,7 +112,8 @@ def browse_by_category():
     prints the category as list of options to search,
     takes an input to search a category
     prints out the asked items
-    and returns the asked category name as string"""
+    and returns a list with the the asked category name as string
+    and an eventual order as string"""
     # create categories dictionary
     categories = {}
     def create_categories(warehouse_stock):
@@ -144,7 +157,12 @@ def browse_by_category():
         print(Color.BOLD + f"\nHere is a list of all items in category '{category.lower()}' of all our warehouses:\n" + Color.END)
         for item in categories[category][1]:
             print(glued_string(str(item)))
-        return category
+        print("\n")
+        order = ask_for_placing_order(len(categories[category][1]), category)
+        if not order:
+            return [category]
+        else:
+            return [category, order]
     else:
         printer.print_error()
 
@@ -156,7 +174,11 @@ def check_for_employee(user:User):
     if str(user) in personnel_names:
         log_option = input(f"It seems you're an Employee, {str(user)}, do you want to log in now? (y/n): ")
         if log_option == "y":
-            user = user.validate_user(personnel, personnel_names) # we pass these to prevent unnecessary loading
+            employee = user.validate_user(personnel, personnel_names) # we pass these to prevent unnecessary loading
+            if employee:
+                user = employee
+        elif not log_option == "n":
+            printer.print_error()
     return user
 
 #### the shopping loop ####
@@ -181,7 +203,10 @@ def go_shopping(actions):
     elif operation == "3":
         category = browse_by_category()
         if category:
-            actions.append(f"Browsed the category {category}.")
+            actions.append(f"Browsed the category {category[0]}.")
+            if len(category) > 1:
+                # possible order
+                actions.append(category[1])
     # Else quit, with error in case of invalid input
     elif not operation == "4":
         printer.print_error()
@@ -209,7 +234,8 @@ def get_user() -> User:
 
 def main():
     # Get the user name
-    username = get_user()
+    global username
+    username= get_user()
     # Greet him
     username = check_for_employee(username)
     username.greet()

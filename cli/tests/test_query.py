@@ -130,8 +130,7 @@ class TestQuery (unittest.TestCase):
 
     def test_print_warehouse_list(self):
         # have a look above...
-        pass
-        
+        pass      
         
 
 if __name__ == '__main__':

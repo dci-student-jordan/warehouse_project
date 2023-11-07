@@ -176,9 +176,12 @@ class Employee(User):
         '''Takes a list of strings
         to be printed as user actions'''
         super().bye(actions)
+        print(Color.ITALIC + "In this session you have", end="")
         if actions:
-            print(Color.ITALIC + "In this session you have:" + Color.END)
+            print(":" + Color.END)
             printer.print_line_by_line(actions)
+        else:
+            print(" done nothing special." + Color.END)
 
     def order_item(self, max_items, order, interest):
             """takes an int for the maximum available items,

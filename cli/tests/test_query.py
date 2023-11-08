@@ -1,7 +1,7 @@
 import unittest
 from contextlib import contextmanager
 import builtins
-from query import get_user, get_selected_operation, list_items_per_warehouse, search_item
+from query import get_user, get_selected_operation, list_items_per_warehouse, search_item, create_jsons_from_data
 from classes import User, Employee, Warehouse, Item
 from load_jsons import Loader
 from unittest.mock import patch, MagicMock
@@ -25,9 +25,10 @@ def mock_output(mock):
 
 
 class TestQuery (unittest.TestCase):
+
     def setUp(self) -> None:
         self.personnel = Loader(model="personnel")
-        self.stock = Loader(model="stock")
+        self.stock = Loader(model="stock", from_data=True)
         return super().setUp()
     
     @patch('pwinput.pwinput')

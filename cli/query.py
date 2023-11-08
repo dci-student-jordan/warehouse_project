@@ -5,10 +5,23 @@ from load_jsons import Loader
 from save_jsons import write_stock_to_json, create_jsons_from_data
 from toys import Color, PrinterToy, glued_string, option_or_login_input
 
+
+def check_for_globals():
+    # needed for testing actually the hardcoded data.py values
+    if not "printer" in globals():
+        # first make sure the json data is available
+        globals()["printer"] = PrinterToy(0.0005)
+    if not "stock" in globals():
+        # first make sure the json data is available
+        create_jsons_from_data()
+        globals()["stock"] = Loader(model="stock", from_data=True)
+
 # Show the menu and ask to pick a choice
 def get_selected_operation():
     """Shows a menu of options and asks for input,
     returns the choice as string"""
+    # needed for testing:
+    check_for_globals()
     printer.print_like_typed("\nHere you can chose from one of three options:\n\n\
                              1. List items by warehouse,\n\
                              2. Search an item and place an order\n\
@@ -17,16 +30,20 @@ def get_selected_operation():
     return input("Which of these options do you want to chose? (1/2/3/4): ")
 
 def list_items_per_warehouse():
-        total_items = 0
-        for warehouse in stock:
-            total_items += warehouse.occupancy()
-            warehouse.list_warehouse()
-        print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
-        return total_items
+    # needed for testing:
+    check_for_globals()
+    total_items = 0
+    for warehouse in stock:
+        total_items += warehouse.occupancy()
+        warehouse.list_warehouse()
+    print(f"Listed {total_items} items of our {len(list(stock))} warehouses.")
+    return total_items
 
 def print_search_results(interest):
     """Takes a string, prints out matching search results
     and returns the number of matches in all warehouses"""
+    # needed for testing:
+    check_for_globals()
     total_items = 0
     most_items_warehouse = ""
     max_items = 0

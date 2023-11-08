@@ -26,6 +26,9 @@ class Loader:
         if "model" not in kwargs:
             raise MissingArgument("The loader requires a `model` keyword argument to work.")
         self.model = kwargs["model"]
+        self.from_data = False
+        if "from_data" in kwargs:
+            self.from_data = kwargs["from_data"]
         self.parse()
 
     def parse(self):
@@ -54,7 +57,11 @@ class Loader:
         Item = self.__load_class("Item")
         Warehouse = self.__load_class("Warehouse")
         warehouses = {}
-        items = load_json_file("data/stock.json")
+        if not self.from_data:
+            items = load_json_file("data/stock.json")
+        else:
+            import data
+            items = data.stock
         for item in items:
             warehouse_id = str(item["warehouse"])
             if warehouse_id not in warehouses.keys():

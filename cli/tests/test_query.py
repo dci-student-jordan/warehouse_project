@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import builtins
 from query import get_user, get_selected_operation, list_items_per_warehouse, search_item
 from classes import User, Employee, Warehouse, Item
-from loader import Loader
+from load_jsons import Loader
 from unittest.mock import patch, MagicMock
 from toys import PrinterToy
 

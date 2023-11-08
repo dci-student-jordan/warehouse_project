@@ -11,6 +11,6 @@ Features planned so far ar:
 - Log actions from users.
 - Reporting.
 
-The project uses python version 3.8.10 and requires the pwinput module.
+The project uses python version 3.8.10 and the [commandlinetool](https://github.com/dci-student-jordan/warehouse_project/blob/main/cli/query.py) requires the pwinput and getch modules.
 
 This project is published under the [MIT-Licence](https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE.txt)

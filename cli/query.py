@@ -1,13 +1,9 @@
 """Command line interface to query the stock."""
 
-from classes import User
-from loader import Loader
-from toys import Color, PrinterToy, glued_string
-
-
-printer = PrinterToy(0.0005)
-
-stock = Loader(model="stock")
+from classes import User, Employee
+from load_jsons import Loader
+from save_jsons import write_stock_to_json, create_jsons_from_data
+from toys import Color, PrinterToy, glued_string, option_or_login_input
 
 # Show the menu and ask to pick a choice
 def get_selected_operation():
@@ -81,12 +77,35 @@ def ask_for_placing_order(search_results, interest):
         # start the order
         order_successful = username.order_item(search_results, if_order, interest)
         if order_successful:
+            # remove order from warehouses
+            remove_items_from_warehouses(order_successful, interest)
             # return order as shopping action
             return f"Ordered {order_successful} {interest} items." if order_successful > 1 else f"Ordered {glued_string(interest).lower()} item."
     elif not if_order == "n":
         # invalid input, get out o' here
         printer.print_error()
     return order_successful
+
+def remove_items_from_warehouses(num_items, item_name):
+    for warehouse in stock:
+        if not num_items:
+            # we're done...
+            break
+        available_items = warehouse.search(item_name)
+        if num_items > len(available_items):
+            # take as much as we can from this warehouse
+            num_items -= len(available_items)
+            for item in available_items:
+                warehouse.stock.remove(item)
+        else:
+            # take the rest needed from this warehouse
+            while num_items > 0:
+                num_items-= 1
+                warehouse.stock.remove(available_items[num_items])
+        # we also have to make sure a new search for the same interest won't return the same:
+        warehouse.items_of_interest = {}
+    write_stock_to_json(stock.to_dict())
+    
 
 
 def search_item():
@@ -172,12 +191,21 @@ def check_for_employee(user:User):
     personnel = Loader(model="personnel")
     personnel_names = [str(x) for x in personnel]
     if str(user) in personnel_names:
-        log_option = input(f"It seems you're an Employee, {str(user)}, do you want to log in now? (y/n): ")
-        if log_option == "y":
+        # log_option = input(f"It seems you're an Employee, {str(user)}, do you want to log in now? (y/n): ")
+            # get employee 
+        employee_candidate = None
+        for employee in personnel:
+            if str(employee) == str(user):
+                employee_candidate = employee
+                break
+        log_in = option_or_login_input(f"It seems you're an Employee, {str(user)}, do you want to log in now? (y/n/pwd): ", employee_candidate)
+        if isinstance(log_in, Employee):
+            return log_in
+        elif log_in == "y":
             employee = user.validate_user(personnel, personnel_names) # we pass these to prevent unnecessary loading
             if employee:
                 user = employee
-        elif not log_option == "n":
+        elif not log_in == "n":
             printer.print_error()
     return user
 
@@ -233,16 +261,22 @@ def get_user() -> User:
 ################## HERE WE GO: ##################
 
 def main():
+    # first make sure the json data is available
+    create_jsons_from_data()
+    global printer, stock, username
+    stock = Loader(model="stock")
+    # load the typewriter
+    printer = PrinterToy(0.0005)
     # Get the user name
-    global username
     username= get_user()
-    # Greet him
+    # in case of employee offer log in option
     username = check_for_employee(username)
+    # Greet him
     username.greet()
     # send him into nirvana
-    shopping = go_shopping([])
-    # print a goodbye afterwards
-    username.bye(shopping)
+    shopping_actions = go_shopping([])
+    # print a goodbye afterwards and store log
+    username.bye(shopping_actions)
 
 if __name__ == "__main__":
     main()

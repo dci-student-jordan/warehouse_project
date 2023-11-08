@@ -1,12 +1,17 @@
+"""Provides the classes Item, Warehouse, User and Employee."""
+
 from datetime import datetime as dt
-from toys import Color, PrinterToy, glued_string
+from toys import Color, PrinterToy, glued_string, option_or_login_input
 import time
-from loader import Loader
+from load_jsons import Loader
 import pwinput as pw
+import os
 
 printer = PrinterToy(0.0005)
 
+
 class Item():
+    """Class for the items in a warehouse."""
 
     def __init__(self, state: str, category: str, warehouse: int, date_of_stock: dt) -> None:
         self.state = state
@@ -42,7 +47,7 @@ class Warehouse():
         if not search_term in self.items_of_interest:
             # clear
             self.items_of_interest = {}
-            # recreate (I do so to prevent recreation in case of twice the same interest entered)
+            # recreate (I do so to prevent recreation in case of twice the same interest entered without order)
             self.items_of_interest[search_term] = [x for x in self.stock if search_term.lower() in str(x).lower()]
         return self.items_of_interest[search_term]
     
@@ -85,24 +90,29 @@ class User():
         Returns Employee if successfully authenticated or None'''
         personnel = Loader(model="personnel") if len(args) < 1 else args[0]
         personnel_names = [str(x) for x in personnel] if len(args) < 2 else args[1]
+        employee_candidate = None
         def ask_password(mess):
-            nonlocal self
+            nonlocal self, employee_candidate
             printer.print_like_typed(mess)
             password = pw.pwinput(mask="*")
-            for staff in personnel:
-                if staff.is_named(str(self)) and staff.authenticate(password):
-                    staff.is_authenticated = True
-                    # here we return an authenticated Employee
-                    return staff
-            else:
-                # wrong password, try again
-                ask_again = input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n): ")
-                if ask_again == "y":
-                    return ask_password(f"Please enter your correct password, {str(self)}: ")
-                else:
-                    # wrong input or refusal
-                    printer.print_error()
-                    return None
+            if not employee_candidate:
+                for staff in personnel:
+                    if staff.is_named(str(self)):
+                        employee_candidate = staff
+                        if staff.authenticate(password):
+                            # here we return an authenticated Employee
+                            return staff
+                        break
+            # wrong password, try again
+            ask_again = option_or_login_input(Color.FAIL + f"Sorry, {str(self)}, that wasn't right." + Color.END + "\nWanna try again? (y/n/pwd): ", employee_candidate)
+            if isinstance(ask_again, Employee):
+                return ask_again
+            elif ask_again == "y":
+                return ask_password(f"Please enter your correct password, {str(self)}: ")
+            elif not ask_again == "n":
+                # wrong input or refusal
+                printer.print_error()
+                return None
         if str(self) in personnel_names:
             # login
             return ask_password(f"Please log in with your password, {str(self)}. ")
@@ -137,6 +147,19 @@ class User():
     def bye(self, actions:list):
         # Thank the user for the visit
         print(Color.WARNING + f"\nOk then, {self._name}, thanks for your visit, we hope to see you soon!" + Color.END)
+        # store actions in log file
+        log_file_name = self.__class__.__name__+".log"
+        # check for log folder to be present
+        if not "log" in os.listdir("."):
+            os.makedirs("log")
+        # create line to append to logfile:
+        action_string = str(self)+": "
+        for action in actions:
+            action_string = action_string+action+" "
+        # write to file
+        with open(os.path.join("log", log_file_name), "a") as writer:
+            writer.write(action_string+f"({dt.now()})\n")
+        
 
     def __str__(self) -> str:
         return self._name
@@ -161,6 +184,9 @@ class Employee(User):
         if not password == "":
             self.is_authenticated = (password == self.__password)
         return self.is_authenticated
+    
+    def potential_authentication(self, pwd):
+        return pwd == self.__password[:len(pwd)]
     
     def order(item: Item, amount: int):
         # print successful order
@@ -199,7 +225,7 @@ class Employee(User):
                     return 0
             else:
                 # try to order either requested amount...
-                if int(order) >= max_items:
+                if int(order) > max_items:
                     order = max_items
                     reorder = input(Color.FAIL + f"Error: Your requested too many items, do you want to order the maximum of {max_items} {interest} items instead? (y/n): " + Color.END)
                     if not reorder.lower() == "y":

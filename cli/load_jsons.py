@@ -1,8 +1,4 @@
-"""Data loader."""
-
-from data import personnel as employees
-from data import stock as items
-
+import json
 
 class MissingClassError(Exception):
     """Missing class exception."""
@@ -50,6 +46,7 @@ class Loader:
         """Parse the personnel list."""
         Employee = self.__load_class("Employee")
 
+        employees = load_json_file("data/personnel.json")
         return [Employee(**employee) for employee in employees]
 
     def __parse_stock(self):
@@ -57,6 +54,7 @@ class Loader:
         Item = self.__load_class("Item")
         Warehouse = self.__load_class("Warehouse")
         warehouses = {}
+        items = load_json_file("data/stock.json")
         for item in items:
             warehouse_id = str(item["warehouse"])
             if warehouse_id not in warehouses.keys():
@@ -71,3 +69,21 @@ class Loader:
     # make objects subscriptable
     def __getitem__ (self, num):
         return self.objects[num]
+    
+    def to_dict(self):
+        """Return a dictionary."""
+        data = None
+        if self.model == "stock":
+            data = []
+            for warehouse in self.objects:
+                for item in warehouse.stock:
+                    item_dict = vars(item)
+                    item_dict["warehouse"] = warehouse.id
+                    data.append(item_dict)
+        return data
+    
+
+def load_json_file(file_path):
+    with open(file_path, "r") as reader:
+        content = reader.read()
+        return json.loads(content)

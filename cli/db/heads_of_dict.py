@@ -1,0 +1,1 @@
+head_ofs = {('Samuel', 'peters'): [('Boris', 'docker')], ('Lidia', 'parker'): [('Tom', 'taylor')], ('Martha', 'bobby'): [('Marc', 'janis')], ('India', 'cali'): [('Martha', 'bobby')], ('Juno', 'compte'): [('India', 'cali'), ('Matthew', 'smith')]}

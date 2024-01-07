@@ -90,12 +90,18 @@ def connect():
     cur = connection.cursor()
     return connection, cur
 
-def execute_sqls(test):
+def execute_sqls(test, pop_personnel:bool, pop_stock:bool):
     connection, cur = None, None
     try:
         connection, cur = connect()
         # first populate our tables:
-        for file in ["pop_warehouse_table.sql", "pop_item_table.sql", "pop_employee_table.sql"]:
+        pop_list = []
+        if pop_stock:
+            pop_list.append("pop_warehouse_table.sql")
+            pop_list.append("pop_item_table.sql")
+        if pop_personnel:
+            pop_list.append("pop_employee_table.sql")
+        for file in pop_list:
             with open(file, "r") as reader:
                 sql = reader.read()
                 cur.execute(sql)
@@ -179,7 +185,7 @@ if __name__ == "__main__":
             read_and_populate_items(stock_list)
         
         # now execute them
-        execute_sqls(mode == "--initial")
+        execute_sqls(mode == "--initial", personnel_list != None, stock_list != None)
 
     except IndexError as e:
         print(e, f"""USAGE:

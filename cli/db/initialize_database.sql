@@ -6,8 +6,7 @@ CREATE TABLE employee (
     id SERIAL PRIMARY KEY,
     name varchar (50) NOT NULL,
     password varchar (25) NOT NULL,
-    head_of int[],
-    activities TEXT[]
+    head_of int[]
 );
 
 CREATE TABLE warehouse (

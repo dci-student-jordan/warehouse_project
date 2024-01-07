@@ -297,7 +297,7 @@ def go_shopping(actions):
     if operation == "1":
         total_items = list_items_per_warehouse()
         actions.append(f"Listed the {total_items} items " +
-                       "of our {len(list(stock))} warehouses.")
+                       f"of our {len(list(stock))} warehouses.")
     # Else, if they pick 2
     elif operation == "2":
         search = search_item()

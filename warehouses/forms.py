@@ -25,9 +25,12 @@ class CustomUserCreationForm(UserCreationForm):
 class LoginForm(forms.ModelForm):
     template_name = "registration/login.html"
     
+    username = forms.CharField(max_length=150)
+    password = forms.CharField(widget=forms.PasswordInput)
+
     class Meta:
         model = User
-        fields = ["username", "password"]
+        fields = ['username', 'password']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

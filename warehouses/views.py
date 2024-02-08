@@ -9,6 +9,7 @@ from django.views.generic.base import TemplateView
 from .forms import ContactForm, LoginForm, CustomUserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.forms import Form
 from .models import Item
 from django.contrib.auth import login, authenticate, logout
 
@@ -69,7 +70,10 @@ class LoginView(FormView):
         else:
             # Handle invalid login
             return self.form_invalid(form)
-
+    
+    def form_invalid(self, form: Any) -> HttpResponse:
+        print("INVALID FORM: ", form.errors)
+        return super().form_invalid(form)
 
 
 class SignUpView(CreateView):

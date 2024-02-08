@@ -75,6 +75,10 @@ class LoginView(FormView):
         print("INVALID FORM: ", form.errors)
         return super().form_invalid(form)
 
+def custom_logout(request):
+    logout(request)
+    return redirect("register")
+    
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm

@@ -8,7 +8,8 @@ from .views import (
     LoginView,
     SignUpView,
     UpdateUserView,
-    ContactView
+    ContactView,
+    custom_logout
 )
 
 urlpatterns = [
@@ -20,6 +21,6 @@ urlpatterns = [
     path("user/contact", ContactView.as_view(), name="contact"),
     path("user/register", RegisterView.as_view(), name="register"),
     path("user/account/<int:pk>", UpdateUserView.as_view(), name="account"),
-    # path('user/', include('django.contrib.auth.urls')),
+    path('user/logout', custom_logout, name="logout"),
     path("user/login", LoginView.as_view(), name="login"),
 ]

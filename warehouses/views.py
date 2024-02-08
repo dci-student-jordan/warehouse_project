@@ -10,7 +10,7 @@ from .forms import ContactForm, LoginForm, CustomUserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.forms import Form
-from .models import Item
+from .models import Item, Employee
 from django.contrib.auth import login, authenticate, logout
 
 # Create your views here.
@@ -47,23 +47,43 @@ class ContactView(FormView):
     form_class = ContactForm
     success_url = reverse_lazy("index")
 
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.save()
         return super().form_valid(form)
 
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     if not initial:
+    #         emps = Employee.objects.all()
+    #         initial = emps.__dict__
+    #     return initial
 
 
 class LoginView(FormView):
     template_name = 'registration/login.html'
     form_class = LoginForm
-    success_url = reverse_lazy("index")
+    success_url = reverse_lazy("about")
+
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
-
+        
         if user is not None:
             login(self.request, user)
             return super().form_valid(form)
@@ -75,15 +95,23 @@ class LoginView(FormView):
         print("INVALID FORM: ", form.errors)
         return super().form_invalid(form)
 
+
 def custom_logout(request):
     logout(request)
-    return redirect("register")
+    return redirect("login")
     
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("index")
     template_name = "registration/signup.html"
+
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -100,6 +128,13 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("index")
     template_name = "registration/update.html"
     fields = ('username', 'first_name', 'last_name', 'email')
+
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
 
 def signup_html(request):
     log_type = request.path.split('/')[-1]

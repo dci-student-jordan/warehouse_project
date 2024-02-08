@@ -26,10 +26,10 @@ function hideLogin() {
     }
 }
 
-function submitMessage() {
-    loginForm.submit();
-    hideLogin()
-}
+// function submitMessage() {
+//     loginForm.submit();
+//     hideLogin()
+// }
 
 loginShower.addEventListener('mouseout', hideLogin);
 

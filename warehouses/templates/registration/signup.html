@@ -1,4 +1,4 @@
-<form method="post" action="{% url 'signup' %}?next=/">
+<form method="post" action="{% url 'signup' %}" id="new-form">
     <h3>Sign up as registered user here:</h3>
     {% csrf_token %}
     {{ form.as_p }}

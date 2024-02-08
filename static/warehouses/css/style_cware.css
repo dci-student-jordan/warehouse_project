@@ -1,0 +1,31 @@
+body {
+    background-image: url(../Pics/cwarehouse.png);
+}
+
+header {
+    width: 51%;
+}
+
+main section {
+    margin-right: 29%;
+    margin-top: 20px;
+    margin-left: 10%;
+    justify-content: center;
+    text-align:end;
+    font-size: x-large;
+    color: aqua;
+}
+
+.loginShower h3{
+    color: aqua;
+}
+
+main h1 {
+    color: rgba(237, 215, 172, 0.549);
+}
+
+@media screen and (min-width:800px) {
+    main section p {
+        font-size:medium;
+    }
+}

@@ -1,0 +1,6 @@
+<form method="post" action="{% url 'signup' %}?next=/">
+    <h3>Sign up as registered user here:</h3>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button method="post" id="submitMess" type="submit">Sign Up</button>
+</form>

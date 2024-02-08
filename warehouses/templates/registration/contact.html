@@ -1,0 +1,7 @@
+
+<form method="post" action="{% url 'contact' %}?next=/">
+    <h3>Contact your favorite employee here:</h3>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send Message</button>
+</form>

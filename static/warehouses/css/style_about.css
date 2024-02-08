@@ -1,0 +1,27 @@
+body {
+    background-image: url(../Pics/asky.jpg);
+    background-position-y: 100%;
+    background-size: cover;
+}
+
+.loginShower h1 {
+    font-size: small;
+    color: rgba(237, 215, 172, 0.549);
+    margin-right: 50px;
+}
+main section p {
+    font-size:small;
+}
+
+main {
+    justify-content:center;
+    text-align:center;
+}
+
+@media screen and (min-width:800px) {
+    main section p {
+        font-size:medium;
+        text-align: start;
+        margin-left: 23%;
+    }
+}

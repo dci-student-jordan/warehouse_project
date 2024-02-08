@@ -13,4 +13,8 @@ Features planned so far ar:
 
 The project uses python version 3.8.10 and the [commandlinetool](https://github.com/dci-student-jordan/warehouse_project/blob/main/cli/query.py) requires the pwinput and getch modules.
 
+# Setup
+If you want to test the system locally create and activate a virtual environment and install requirements from the file.
+To setup the database run the file cli/db/initialize_database.sql with psql and afterwards cli/db/populate_database.py.
+
 This project is published under the [MIT-Licence](https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE.txt)

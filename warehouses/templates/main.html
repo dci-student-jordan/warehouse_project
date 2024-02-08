@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'warehouses/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+</head>
+<body>
+    <header>
+        <nav>
+            {% for link in links %}
+            <div class="drop">
+                {% if not link.link.1 %}
+                    <p><a href="{% url link.link.0 %}" class="link">
+                        {{ link.name }}
+                    </a></p>
+                {% else %}
+                    {% with path=link.link.1%}
+                    <p><a href="{% url link.link.0 path%}" class="link">
+                        {{ link.name }}
+                    </a></p>
+                    {% endwith %}
+                {% endif %}
+                {% for menu_link in link.menu %}
+                    {% with path=menu_link.link.1%}
+                        <div class="dropContent link">
+                            {% if not path%}
+                                <p><a href="{% url menu_link.link.0 %}">{{menu_link.name}}</a></p>
+                            {% else %}
+                                <p><a href="{% url menu_link.link.0 path %}">{{menu_link.name}}</a></p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </nav>
+    </header>
+    <main><div class="loginShower" id="loginShower">
+        <h3 id="vanishingInv" class="vanishingInv">contact</h3>
+        <h1>Refurbish is responsibility.</h1>
+        <div class="login" id="loginForm">
+            {% include 'registration/reg_container.html' %}
+        </div>
+    </div>         
+        <section>
+            <div>
+                <h1>{{header_text}}</h1>
+                {% for content in content_text %}
+                    <h6 style="font-weight: 50;">{{content}}</h6>
+                {% endfor %}
+            </div>
+            <div style="max-height: 50vh; overflow-y: auto;">
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p><a href="#link" class="link">Impressum</a></p>
+        <p><a href="#link" class="link">Copyright</a></p>
+    </footer>
+    <script src="{% static 'warehouses/scripts/script.js' %}"></script>
+</body>
+</html>

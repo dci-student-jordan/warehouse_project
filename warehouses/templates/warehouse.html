@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{%static style %}">
+{% endblock %}
+{% block content%}
+    {% for item in content%}
+        <h3>{{item.category}}</h3>
+        <p>{{item.state}}</p>
+    {% endfor %}
+{% endblock %}

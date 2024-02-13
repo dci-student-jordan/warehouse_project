@@ -19,7 +19,6 @@ function hack_mouseover() {
     const keep_alives = document.querySelectorAll('.keep_alive')
     keep_alives.forEach(element => {
         handleFocusAndBlur(element)
-        console.log("keep_alive for", element.id)
     });
 }
 
@@ -30,40 +29,15 @@ function loadUserForm(form) {
         // and inject it into the dynamicContent div
         .then(response => response.text())
         .then(data => {
-            document.getElementById('dynamicContent').innerHTML = data;
-            hack_mouseover()
             // needs reload
             if (form.endsWith('logout')) {
                 location.reload()
             }
-            document.getElementById('new-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-                let form = event.target;
-                let formData = new FormData(form);
-                
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Replace #dynamiccontent with the fetched content
-                    document.querySelector('#dynamicContent').innerHTML = data["html"];
-                    var errors = document.getElementsByClassName('errorlist nonfield');
-                    for (var i = 0; i < errors.length; i++) {
-                        // Apply the red color style to each error element
-                        errors[i].style.color = 'red';
-                    }
-                    hack_mouseover()
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Handle errors if needed
-                });
-            });
+            else {
+                document.getElementById('dynamicContent').innerHTML = data;
+                hack_mouseover()
+                prepareNewForm(form)
+            }
         });
     if (form.endsWith('signup') | form.endsWith('login')) {
         var hide = form.endsWith('signup') ? 'signup' : 'login';
@@ -83,3 +57,41 @@ function handleFocusAndBlur(element) {
         });
     }
 }
+
+function prepareNewForm (form_string) {
+    if (form_string.endsWith('login')) {
+        new_form = document.getElementById('new-form')
+        action = new_form.action
+        new_form.action= action + "?next=" + window.location.href;
+    }
+    document.getElementById('new-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let form = event.target;
+        let formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data["html"] == "") location.reload();
+            else {
+            // Replace #dynamiccontent with the fetched content
+            document.querySelector('#dynamicContent').innerHTML = data["html"];
+            var errors = document.querySelectorAll('[class^="errorlist"]');
+            for (var i = 0; i < errors.length; i++) {
+                // Apply the red color style to each error element
+                errors[i].style.color = 'red';
+            }
+            hack_mouseover()}
+            prepareNewForm(form_string)
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if needed
+        });
+    });}

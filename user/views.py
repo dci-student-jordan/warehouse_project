@@ -42,6 +42,14 @@ class LoginView(FormView):
     form_class = LoginForm
     success_url = reverse_lazy("index")
 
+
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
+
     def form_valid(self, form):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
@@ -49,7 +57,8 @@ class LoginView(FormView):
         
         if user is not None:
             login(self.request, user)
-            return json_response(ContactForm(), csrf(self.request)['csrf_token'], 'contact', self.get_context_data())
+            # force page reload
+            return JsonResponse({"html":""})
         else:
             # Handle invalid login
             form.add_error(None, ValidationError("Invalid username or password."))
@@ -113,8 +122,8 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form):
         return json_response(form, csrf(self.request)['csrf_token'], 'update', self.get_context_data())
 
-def signup_html(request):
-    log_type = request.path.split('/')[-1]
-    # form = SignUpForm() if log_type == "signup" else LoginForm()
-    template = f"registration/{log_type}.html"
-    return render(request, template, {})
+# def signup_html(request):
+#     log_type = request.path.split('/')[-1]
+#     # form = SignUpForm() if log_type == "signup" else LoginForm()
+#     template = f"registration/{log_type}.html"
+#     return render(request, template, {})

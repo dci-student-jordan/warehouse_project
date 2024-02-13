@@ -20,7 +20,6 @@ loginShower.addEventListener('mouseover', () => {
 });
 
 function hideLogin() {
-    console.log("keepLogin:", keepLogIn)
     if (!keepLogIn) {
         setStyles('none', 'block', '20%');
     }

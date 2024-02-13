@@ -1,17 +1,10 @@
+# warehouses.views.py
+
 from typing import Any
-from django.forms.models import BaseModelForm
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.http.response import HttpResponse as HttpResponse
-from django.urls import reverse, reverse_lazy
-from django.shortcuts import render, redirect
-from django.views.generic import CreateView, FormView, UpdateView
 from django.views.generic.base import TemplateView
-from .forms import ContactForm, LoginForm, CustomUserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
-from django.forms import Form
-from .models import Item, Employee
-from django.contrib.auth import login, authenticate, logout
+from .models import Item
 
 # Create your views here.
 
@@ -24,10 +17,12 @@ def menu_links_style(exclude):
         {"link":("warehouse", "INDIA"), "name":"Dewarehouse", "menu":[{"link":("products", "INDIA"), "name":"Products"}]}
     ]
     def un_menu(link:dict):
-        if link["link"] == exclude:
-            link = link["menu"][0]
         if "menu" in link.keys():
-            link["menu"] = [] if link["menu"][0]["link"] == exclude else link["menu"]
+            link["menu"] = [l for l in link["menu"] if not l["link"] == exclude]
+        if link["link"] == exclude:
+            menu = link["menu"][1:]
+            link = link["menu"][0]
+            link["menu"] = menu
         return link
     links = [un_menu(link) for link in links]
     stc = "a" if "EU" in exclude else \
@@ -42,133 +37,9 @@ def menu_links_style(exclude):
     return links, style, continent
 
 
-class ContactView(FormView):
-    template_name = 'registration/contact.html'
-    form_class = ContactForm
-    success_url = reverse_lazy("index")
-
-    def get_success_url(self) -> str:
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        else:
-            return super().get_success_url()
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.save()
-        return super().form_valid(form)
-
-    # def get_initial(self):
-    #     initial = super().get_initial()
-    #     if not initial:
-    #         emps = Employee.objects.all()
-    #         initial = emps.__dict__
-    #     return initial
-
-
-class LoginView(FormView):
-    template_name = 'registration/login.html'
-    form_class = LoginForm
-    success_url = reverse_lazy("about")
-
-    def get_success_url(self) -> str:
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        else:
-            return super().get_success_url()
-
-    def form_valid(self, form):
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        user = authenticate(username=username, password=password)
-        
-        if user is not None:
-            login(self.request, user)
-            return super().form_valid(form)
-        else:
-            # Handle invalid login
-            return self.form_invalid(form)
-    
-    def form_invalid(self, form: Any) -> HttpResponse:
-        print("INVALID FORM: ", form.errors)
-        return super().form_invalid(form)
-
-
-def custom_logout(request):
-    logout(request)
-    return redirect("login")
-    
-
-class SignUpView(CreateView):
-    form_class = CustomUserCreationForm
-    success_url = reverse_lazy("index")
-    template_name = "registration/signup.html"
-
-    def get_success_url(self) -> str:
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        else:
-            return super().get_success_url()
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        
-        # Log in the user after successful registration
-        login(self.request, self.object)
-        if self.request.user.is_authenticated:
-            self.success_url = self.request.GET.get('next', '/')
-
-        return response
-    
-class UpdateUserView(LoginRequiredMixin, UpdateView):    
-    model = User
-    success_url = reverse_lazy("index")
-    template_name = "registration/update.html"
-    fields = ('username', 'first_name', 'last_name', 'email')
-
-    def get_success_url(self) -> str:
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        else:
-            return super().get_success_url()
-
-def signup_html(request):
-    log_type = request.path.split('/')[-1]
-    # form = SignUpForm() if log_type == "signup" else LoginForm()
-    template = f"registration/{log_type}.html"
-    return render(request, template, {})
-
 class RegisterView(TemplateView):
+    '''View containing registration etc'''
     template_name = "registration/reg_container.html"
-    # form_class = ContactView
-    # success_url = reverse_lazy("index")
-
-    # def form_valid(self, form):
-    #     form.save()
-    #     print("saved")
-    #     username = form.cleaned_data['username']
-    #     password = form.cleaned_data['password']
-    #     user = authenticate(username=username, password=password)
-
-    #     if user is not None:
-    #         login(self.request, user)
-    #         if user.is_authenticated:
-    #             print("logged in")
-    #             self.success_url = super().render_to_response(self.get_context_data())
-    #             # return redirect(next_url)
-    #         return super().render_to_response(self.get_context_data())
-    #     else:
-    #         # Handle invalid login
-    #         return super().render_to_response(self.get_context_data())
-    
-    # def form_invalid(self, form: BaseModelForm) -> HttpResponse:
-    #     print("FORM INVALID:", form)
-    #     return super().form_invalid(form)
-    
     
 def get_reg_from_request(request):
         view = RegisterView.as_view()
@@ -220,6 +91,7 @@ class Warehouse(TemplateView):
             "reg": get_reg_from_request(self.request),
             "style":style,
             "links": links,
+            "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
             "header_text":f"Shopping 2.0 in the {location}",
             "content_text":[f"Explore our shop in {continent}.",
@@ -238,8 +110,44 @@ class Products(TemplateView):
             "reg": get_reg_from_request(self.request),
             "style":style,
             "links": links,
+            "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Products in {location}",
-            "content_text":[f"Heres a list of all Products in {continent}:"],
+            "header_text":f"Products in {'the' if location == 'USA' else ''} {location}",
+            "content_text":[f"Here is a list of all Products in {continent} ({len(content)} in total):"],
             "content":content
+        }
+
+class List_Filtered(TemplateView):
+    template_name = "warehouse.html"
+    def get_context_data(self, location, filter):
+        links, style, continent = menu_links_style(("filter", location))
+        wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+        content_links = Item.objects.filter(warehouse=wh).values(filter).distinct()
+        return {
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":location,
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
+            "header_text":f"Item {filter} in {'the' if location == 'USA' else ''} {location}",
+            "content_text":[f"Here is a list of all {filter} in {continent}:"],
+            "content_links": content_links
+        }
+
+class List_Items_Filtered(TemplateView):
+    template_name = "warehouse.html"
+    def get_context_data(self, location, filter, filter_string):
+        links, style, continent = menu_links_style(("filter_items", location))
+        wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+        args = {filter:filter_string}
+        content = Item.objects.filter(warehouse=wh, **args)
+        return {
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":location,
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
+            "header_text":f"Items of {filter} '{filter_string}' in {'the' if location == 'USA' else ''} {location}",
+            "content_text":[f"Here is a list of all items of {filter} '{filter_string}' in {continent}:"],
+            "content": content
         }

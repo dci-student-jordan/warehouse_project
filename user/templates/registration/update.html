@@ -1,5 +1,5 @@
 <form method="post" action="{% url 'account' user.id %}" id="new-form">
-    <h3>Updtae Your Account data here:</h3>
+    <h3>Update Your Account data here:</h3>
     {% csrf_token %}
     {{ form.as_p }}
     <button method="post" id="submitMess" type="submit">Update</button>

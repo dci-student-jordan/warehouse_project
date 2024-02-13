@@ -1,6 +1,6 @@
 body {
     background-color: rgb(66, 44, 1);
-    background-image: url(../Pics/dwarehouse.jpg);
+    background-image: url(../Pics/dwarehouse.jpeg);
 }
 
 main h1 {
@@ -16,6 +16,10 @@ main section {
     justify-content: center;
     text-align:justify;
     font-size: x-large;
+    color:rgb(238, 255, 0);
+}
+
+a {
     color:rgb(238, 255, 0);
 }
 

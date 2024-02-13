@@ -1,3 +1,28 @@
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Check if the cookie name matches the requested name
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function hack_mouseover() {
+    // hack for mouseout
+    const keep_alives = document.querySelectorAll('.keep_alive')
+    keep_alives.forEach(element => {
+        handleFocusAndBlur(element)
+        console.log("keep_alive for", element.id)
+    });
+}
+
 // Function to load the update user data form
 function loadUserForm(form) {  
     fetch(form)
@@ -6,24 +31,39 @@ function loadUserForm(form) {
         .then(response => response.text())
         .then(data => {
             document.getElementById('dynamicContent').innerHTML = data;
-            // hack for mouseout
-            const keep_alives = document.querySelectorAll('.keep_alive')
-            keep_alives.forEach(element => {
-                handleFocusAndBlur(element)
-                console.log("keep_alive for", element.id)
-            });
+            hack_mouseover()
             // needs reload
             if (form.endsWith('logout')) {
                 location.reload()
             }
-            // When submitting we want to return to the current page
-            var currentPageUrl = window.location.href;    
-            // Construct the URL with "?next=" plus the current page URL
-            var nextUrl = '?next=' + encodeURIComponent(currentPageUrl);    
-            // Get the form element
-            var new_form = document.querySelector('#new-form');
-            // Append the nextUrl to the form's action attribute
-            new_form.action += nextUrl;
+            document.getElementById('new-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                let form = event.target;
+                let formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Replace #dynamiccontent with the fetched content
+                    document.querySelector('#dynamicContent').innerHTML = data["html"];
+                    var errors = document.getElementsByClassName('errorlist nonfield');
+                    for (var i = 0; i < errors.length; i++) {
+                        // Apply the red color style to each error element
+                        errors[i].style.color = 'red';
+                    }
+                    hack_mouseover()
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle errors if needed
+                });
+            });
         });
     if (form.endsWith('signup') | form.endsWith('login')) {
         var hide = form.endsWith('signup') ? 'signup' : 'login';

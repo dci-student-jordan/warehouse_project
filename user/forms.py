@@ -1,6 +1,6 @@
-# forms.py
+# user.forms.py
 from django import forms
-from .models import Employee, Contact
+from warehouses.models import Employee, Contact
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 

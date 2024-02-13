@@ -1,5 +1,5 @@
 body {
-    background-image: url(../Pics/cwarehouse.png);
+    background-image: url(../Pics/cwarehouse.jpeg);
 }
 
 header {
@@ -13,6 +13,10 @@ main section {
     justify-content: center;
     text-align:end;
     font-size: x-large;
+    color: aqua;
+}
+
+a {
     color: aqua;
 }
 

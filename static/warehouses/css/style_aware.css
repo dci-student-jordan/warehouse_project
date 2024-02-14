@@ -2,17 +2,12 @@ body {
     background-image: url(../Pics/awarehouse.jpeg);
 }
 
-header {
-    width: 51%;
-}
-
 main section {
     margin-right: 15%;
     margin-top: 20px;
     margin-left: 30%;
     justify-content: center;
     text-align: start;
-    font-size: x-large;
     color: rgb(255, 81, 0);
 }
 

@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.views.generic.base import TemplateView
 from .models import Item
+from django.db.models import Q
 
 # Create your views here.
 
@@ -27,12 +28,14 @@ def menu_links_style(exclude):
     links = [un_menu(link) for link in links]
     stc = "a" if "EU" in exclude else \
         "b" if "USA" in exclude else \
-        "c" if "ASIA"  in exclude else "d"
+        "c" if "ASIA"  in exclude else \
+        "d" if "INDIA"  in exclude else "e"
     style = f'warehouses/css/style_{stc}ware.css'
 
     continent = "Europe" if stc == "a" else \
         "the United States of America" if stc == "b" else \
-            "Asia" if stc == "c" else "India"
+            "Asia" if stc == "c" else "India" if stc == "d" \
+            else "all our warehouses"
 
     return links, style, continent
 
@@ -93,7 +96,7 @@ class Warehouse(TemplateView):
             "links": links,
             "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Shopping 2.0 in the {location}",
+            "header_text":f"Shopping 2.0 in {continent}",
             "content_text":[f"Explore our shop in {continent}.",
                 "Our offers are collected from donations, private people, misproductions and so on.",
                 "You define what to pay.",
@@ -104,15 +107,18 @@ class Products(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location):
         links, style, continent = menu_links_style(("products", location))
-        wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-        content = Item.objects.filter(warehouse=wh)
+        if location == "ALL":
+            content = Item.objects.all()
+        else:
+            wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+            content = Item.objects.filter(warehouse=wh)
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
             "links": links,
             "location":location,
-            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Products in {'the' if location == 'USA' else ''} {location}",
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D' if location == 'INDIA' else 'Your'}-Warehouse {location if location != 'ALL' else ''}",
+            "header_text":f"Products in {continent}",
             "content_text":[f"Here is a list of all Products in {continent} ({len(content)} in total):"],
             "content":content
         }
@@ -121,16 +127,20 @@ class List_Filtered(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location, filter):
         links, style, continent = menu_links_style(("filter", location))
-        wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-        content_links = Item.objects.filter(warehouse=wh).values(filter).distinct()
+        if location == "ALL":
+            content_links = Item.objects.all().values(filter).distinct()
+        else:
+            wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+            content_links = Item.objects.filter(warehouse=wh).values(filter).distinct()
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
             "links": links,
             "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Item {filter} in {'the' if location == 'USA' else ''} {location}",
-            "content_text":[f"Here is a list of all {filter} in {continent}:"],
+            "header_text":f"Available {'categories' if filter == 'category' else 'states'} in {continent}",
+            "content_text":[f"Here is a list of each {filter} available in {continent} ({len(content_links)} in total):"],
+            "filtered_by": filter,
             "content_links": content_links
         }
 
@@ -138,16 +148,69 @@ class List_Items_Filtered(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location, filter, filter_string):
         links, style, continent = menu_links_style(("filter_items", location))
-        wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
         args = {filter:filter_string}
-        content = Item.objects.filter(warehouse=wh, **args)
+        if location == "ALL":
+            content = Item.objects.filter(**args)
+        else:
+            wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+            content = Item.objects.filter(warehouse=wh, **args)
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
             "links": links,
             "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Items of {filter} '{filter_string}' in {'the' if location == 'USA' else ''} {location}",
-            "content_text":[f"Here is a list of all items of {filter} '{filter_string}' in {continent}:"],
+            "header_text":f"Items of {filter} '{filter_string}' in {content}",
+            "content_text":[f"Here is a list of all items of {filter} '{filter_string}' in {continent} ({len(content)} in total):"],
             "content": content
+        }
+    
+
+class Search_Items(TemplateView):
+    template_name = "warehouse.html"
+    def get_context_data(self, location):
+        links, style, continent = menu_links_style(("filter_items", location))
+        return {
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":location,
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
+            "header_text": "Search an Item",
+            "content_text":[f"Here you can search an Item in {continent}:"],
+            "search_item": True,
+            "search_prompt": "What are you looking for?"
+        }
+
+class Search_Items_Result(TemplateView):
+    template_name = "warehouse.html"
+    def get_context_data(self, location, search_term):
+        links, style, continent = menu_links_style(("filter_items", location))        
+        # Split the search term into individual words
+        search_words = search_term.split()
+        # Create a Q object to build the query dynamically
+        query = Q()
+        # Iterate over each word and add a condition to the query
+        for word in search_words:
+            query |= Q(category__icontains=word) | Q(state__icontains=word)
+        # now query based on location
+        if location == "ALL":
+            content_links = Item.objects.filter(query).distinct()
+        else:
+            wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
+            content_links = Item.objects.filter(query, warehouse=wh).distinct()
+        content_text = f"'{search_term}' didn't match any result for items in {continent}" \
+            if not len(content_links) else f"Your search for '{search_term}' in {continent} has {len(content_links)} matches:"
+        return {
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":location,
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
+            "header_text": f"Search results for '{search_term}'",
+            "content_text":[content_text, "", "Search something else here:"],
+            "filtered_by": "name",
+            "content_links": content_links,
+            "search_item": True,
+            "search_prompt": "Not what are you looking for?"
         }

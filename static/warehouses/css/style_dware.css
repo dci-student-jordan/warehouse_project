@@ -27,10 +27,6 @@ a {
     color:rgb(238, 255, 0);
 }
 
-header {
-    width: 59%;
-}
-
 @media screen and (min-width:800px) {
     main section p {
         font-size:medium;

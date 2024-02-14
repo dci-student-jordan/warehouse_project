@@ -5,8 +5,7 @@
     font-size: xx-small;
     margin: 0px;
     padding: 20px;
-    transition: 0.3s;
-    top:-100px;
+    max-width: 20%;
 }
 
 .vanishingInv {
@@ -24,7 +23,6 @@ body {
     text-shadow: 1px 3px 2px rgba(0, 0, 0, 0.721), 0 0 1em rgba(0, 0, 0, 0.464), 0 0 0.2em rgba(0, 0, 0, 0.43);
     display: flex;
     flex-direction: column;
-    /* min-height: 98vh; */
     opacity: 0;
     /* Add a smooth transition for the opacity property */
     transition: opacity 1s ease-in-out;
@@ -37,13 +35,10 @@ body.loaded {
 header {
     background-image: linear-gradient(rgba(66, 44, 1, 0.691), rgba(66, 44, 1, 0.084));
     display: flex;
-    flex-direction: column;
-    justify-content: center;    
-    font-style: italic;
+    flex-direction: row;
+    justify-content: right;
     margin: 5px;
-    width:67vw;
     padding: 20px;
-    position:fixed;
     color: rgba(229, 202, 147, 0.386);
 }
 
@@ -56,12 +51,14 @@ header {
 nav {
     padding: 5px;
     margin-top: 20px;
+    margin-right: 30px;
     background-image: radial-gradient(rgba(93, 63, 3, 0.595) ,rgba(108, 73, 4, 0.429));
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    font-size:small;
+    font-size:medium;
     width: fit-content;
+    font-style: italic;
 }
 
 nav p {
@@ -118,7 +115,8 @@ a {
 .login {
     display: none;
     top: 5px;
-    position: relative;
+    position: absolute;
+    right: 20px;
     padding: 20px;
     margin: 20px;
     width: fit-content;
@@ -146,10 +144,11 @@ main {
 }
 
 main section {
+    display: block;
+    font-size: smaller;
     margin: 27px;
     padding: 31px;
     background-image: linear-gradient(to left, rgba(239, 222, 195, 0.429) ,rgba(66, 48, 5, 0.701));
-    font-size: x-large;
 }
 
 footer {
@@ -199,10 +198,11 @@ footer a {
     
     main section{
         font-size: xx-large;
+        display: flex;
     }
 
     nav {
-        font-size: larger;
+        font-size: small;
     }
 
     footer a {

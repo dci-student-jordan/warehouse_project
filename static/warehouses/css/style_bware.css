@@ -4,7 +4,6 @@ body {
 }
 
 main h1 {
-    font-size: xx-large;
     color: rgba(237, 215, 172, 0.549);
     margin-right: 50px;
 }
@@ -15,7 +14,6 @@ main section {
     margin-top: 50px;
     justify-content: center;
     text-align: center;
-    font-size: x-large;
     color: chartreuse;
 }
 
@@ -25,10 +23,6 @@ a {
 
 .loginShower h3{
     color: chartreuse;
-}
-
-header {
-    width: 59%;
 }
 
 @media screen and (min-width:800px) {

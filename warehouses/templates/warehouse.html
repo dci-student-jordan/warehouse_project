@@ -7,12 +7,41 @@
 {% block content%}
     {% for item in content%}
         {% if item.category|ends_with_s %}
-        <p><a href="{% url 'category_items' location 'state' item.state %}">{{item.state}}</a> <a href="{% url 'category_items' location 'category' item.category %}">{{item.category}}</a>.</p>
+        <p><a href="{% url 'filtered_items' location 'state' item.state %}">{{item.state}}</a> <a href="{% url 'filtered_items' location 'category' item.category %}">{{item.category}}</a>.</p>
         {% else %}
-        <p><a href="{% url 'category_items' location 'state' item.state %}">{{item.state|glue}}</a> <a href="{% url 'category_items' location 'category' item.category %}">{{item.category}}</a>.</p>
+        <p><a href="{% url 'filtered_items' location 'state' item.state %}">{{item.state|glue}}</a> <a href="{% url 'filtered_items' location 'category' item.category %}">{{item.category}}</a>.</p>
         {% endif %}
     {% endfor %}
     {% for link in content_links %}
-        <p><a href="{% url 'category_items' location 'category' link.category %}">{{link.category}}</a></p>
+        {% if filtered_by == 'category' %}
+        <p><a href="{% url 'filtered_items' location 'category' link.category %}">{{link.category}}</a></p>
+        {% elif filtered_by == 'name' %}
+        <p><a href="{% url 'filtered_items' location 'state' link.state %}">{{link.state|glue}}</a> <a href="{% url 'filtered_items' location 'category' link.category %}">{{link.category}}</a>.</p>
+        {% else %}
+        <p><a href="{% url 'filtered_items' location 'state' link.state %}">{{link.state}}</a></p>
+        {% endif %}
     {% endfor %}
+    {% if search_item %}
+        <h3>{{search_prompt}}</h3>
+        <input id="searchInput" type="text" placeholder="enter search term here" onkeydown="start_search(this)">
+        <button onclick="search()">Search</button>
+        <script>
+            function start_search(element) {
+                if(event.key === 'Enter') {
+                    search()
+                }
+            }
+            function search() {
+                // Get the value from the search input
+                var searchTerm = document.getElementById("searchInput").value;
+
+                // Construct the URL with the search term
+                var url = "{% url 'search_result' location|default:'ALL' 'SEARCHTERM' %}".replace("SEARCHTERM", encodeURIComponent(searchTerm));
+
+
+                // Redirect the user to the search URL
+                window.location.href = url;
+            }
+        </script>
+    {% endif %}
 {% endblock %}

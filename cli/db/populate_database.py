@@ -1,7 +1,5 @@
 from sys import argv, path
 path.append("../")
-from dotenv import load_dotenv
-import os
 from warehouses.models import Warehouse, Item, Employee
 
 def populate_warehouses(items):
@@ -35,18 +33,16 @@ def populate_employees(employees_list):
     unpacked_employees = unpack_employees(employees_list)
     print(unpacked_employees)
 
-
-if __name__ == "__main__":
+def main(mode):
     try:
         #first create warehouses
         personnel_list, stock_list = None, None
-        mode = argv[1]
         if mode == "--initial":
-            from data import personnel, stock
+            from ..data import personnel, stock
             personnel_list = personnel
             stock_list = stock
         elif mode == "--json":
-            from load_jsons import load_json_file
+            from ..load_jsons import load_json_file
             if "personnel" in argv[2]:
                 personnel_list = load_json_file(argv[2])
             if "stock" in argv[2]:
@@ -68,3 +64,9 @@ if __name__ == "__main__":
     'python populate_database.py --json path/to/json_file.json':
         loads the data from json_file.json,
             -> where 'json_file' is either 'personnel' or 'stock'""")
+
+if __name__ == "__main__":
+    mode = "--initial"
+    if len(argv) > 1:
+        mode = argv[1]
+    main(mode)

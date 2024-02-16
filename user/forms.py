@@ -4,6 +4,16 @@ from warehouses.models import Employee, Contact
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+def add_class_to_fields(fields):
+    for field_name, field in fields.items():
+        # Add class to prevent mouseout in script.js
+        existing_classes = field.widget.attrs.get('class', '')
+        new_class = 'keep_alive'
+        updated_classes = f'{existing_classes} {new_class}'.strip()
+        field.widget.attrs['class'] = updated_classes
+    return fields
+
+
 class CustomUserCreationForm(UserCreationForm):
     template_name = "registration/signup.html"
     class Meta:
@@ -12,14 +22,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(CustomUserCreationForm, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            # Add class to prevent mouseout in script.js
-            existing_classes = field.widget.attrs.get('class', '')
-            new_class = 'keep_alive'
-            updated_classes = f'{existing_classes} {new_class}'.strip()
-            field.widget.attrs['class'] = updated_classes
-
-
+        self.fields = add_class_to_fields(self.fields)
 
 
 class LoginForm(forms.Form):
@@ -29,13 +32,8 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            # Add class to prevent mouseout in script.js
-            existing_classes = field.widget.attrs.get('class', '')
-            new_class = 'keep_alive'
-            updated_classes = f'{existing_classes} {new_class}'.strip()
-            field.widget.attrs['class'] = updated_classes
+        super().__init__(*args, **kwargs)        
+        self.fields = add_class_to_fields(self.fields)
 
 
 
@@ -48,9 +46,4 @@ class ContactForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            # Add class to prevent mouseout in script.js
-            existing_classes = field.widget.attrs.get('class', '')
-            new_class = 'keep_alive'
-            updated_classes = f'{existing_classes} {new_class}'.strip()
-            field.widget.attrs['class'] = updated_classes
+        self.fields = add_class_to_fields(self.fields)

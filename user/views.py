@@ -5,7 +5,7 @@ from django.http.response import HttpResponse as HttpResponse
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.views.generic import CreateView, FormView, UpdateView
-from .forms import ContactForm, LoginForm, CustomUserCreationForm
+from .forms import ContactForm, LoginForm, CustomUserCreationForm, add_class_to_fields
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -118,12 +118,11 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         else:
             return super().get_success_url()
     
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Add class to form fields
+        form.fields = add_class_to_fields(form.fields)
+        return form
 
     def form_invalid(self, form):
         return json_response(form, csrf(self.request)['csrf_token'], 'update', self.get_context_data())
-
-# def signup_html(request):
-#     log_type = request.path.split('/')[-1]
-#     # form = SignUpForm() if log_type == "signup" else LoginForm()
-#     template = f"registration/{log_type}.html"
-#     return render(request, template, {})

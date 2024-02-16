@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cli.toys import glued_string
 
 # Create your models here.
 
@@ -24,6 +25,7 @@ class Item(models.Model):
     category = models.CharField(max_length=100)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     date_of_stock = models.DateTimeField()
+    # name = models.CharField(max_length=100, default=f"{glued_string(state)} {category.lower()}" if category[-1] != "s" else f"{state} {category.lower()}")
 
 
 class Contact(models.Model):

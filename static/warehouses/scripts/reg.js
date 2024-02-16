@@ -30,7 +30,7 @@ function loadUserForm(form) {
         .then(response => response.text())
         .then(data => {
             // needs reload
-            if (form.endsWith('logout')) {
+            if (form.endsWith('logout/')) {
                 location.reload()
             }
             else {
@@ -39,9 +39,9 @@ function loadUserForm(form) {
                 prepareNewForm(form)
             }
         });
-    if (form.endsWith('signup') | form.endsWith('login')) {
-        var hide = form.endsWith('signup') ? 'signup' : 'login';
-        var show = form.endsWith('login') ? 'signup' : 'login';
+    if (form.endsWith('signup/') | form.endsWith('login/')) {
+        var hide = form.endsWith('signup/') ? 'signup' : 'login';
+        var show = form.endsWith('login/') ? 'signup' : 'login';
         hide_btn = document.getElementById(hide)
         show_btn = document.getElementById(show)
         hide_btn.style.display = 'none';

@@ -10,4 +10,4 @@ def glue(to_glue):
     
 @register.filter(name='ends_with_s')
 def ends_with_s(value):
-    return value.lower()[-1] == 's'
+    return value[-1] == 's'

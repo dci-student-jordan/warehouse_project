@@ -1,11 +1,14 @@
 # warehouses.views.py
-
+from django.urls import reverse_lazy
 from typing import Any
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
 from .models import Item
+from .forms import ItemForm
 from django.db.models import Q
+from django.template.response import TemplateResponse
 
 # Create your views here.
 
@@ -45,10 +48,14 @@ class RegisterView(TemplateView):
     template_name = "registration/reg_container.html"
     
 def get_reg_from_request(request):
-        view = RegisterView.as_view()
-        # Render the view and get the response content
-        response = view(request)
+    view = RegisterView.as_view()
+    # Render the view and get the response content
+    response = view(request)
+    if isinstance(response, TemplateResponse):
         return response.render().content
+    else:
+        # Handle non-TemplateResponse cases
+        return response.content
 
 
 class Index(TemplateView):
@@ -123,6 +130,45 @@ class Products(TemplateView):
             "content":content
         }
 
+
+class ProductDetailView(UpdateView):
+    template_name = "product_detail.html"
+    model = Item
+    form_class = ItemForm
+    success_url = reverse_lazy("index")
+
+    def post(self, request, *args, **kwargs):        
+        return super().post(request, *args, **kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Form data:", form.cleaned_data)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        content = self.get_object()
+        wh = content.warehouse_id
+        location = "EU" if wh == 1 else "USA" if wh == 2 else "ASIA" if wh == 3 else "INDIA" # if wh == 4 else "ALL"
+        links, style, continent = menu_links_style(("product", location))
+        context.update({
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":location,
+            "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D' if location == 'INDIA' else 'Your'}-Warehouse {location if location != 'ALL' else ''}",
+            "header_text":f"Update Item #{content.pk} from {location}"
+        })
+        return context
+
+
 class List_Filtered(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location, filter):
@@ -160,7 +206,7 @@ class List_Items_Filtered(TemplateView):
             "links": links,
             "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
-            "header_text":f"Items of {filter} '{filter_string}' in {content}",
+            "header_text":f"Items of {filter} '{filter_string}' in {continent}",
             "content_text":[f"Here is a list of all items of {filter} '{filter_string}' in {continent} ({len(content)} in total):"],
             "content": content
         }
@@ -208,7 +254,7 @@ class Search_Items_Result(TemplateView):
             "location":location,
             "title":f"{'A' if location == 'EU' else 'B' if location == 'USA' else 'C' if location == 'ASIA' else 'D'}-Warehouse {location}",
             "header_text": f"Search results for '{search_term}'",
-            "content_text":[content_text, "", "Search something else here:"],
+            "content_text":[content_text],
             "filtered_by": "name",
             "content_links": content_links,
             "search_item": True,

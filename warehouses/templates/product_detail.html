@@ -1,0 +1,12 @@
+{% extends "main.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static style %}">
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{form.as_p }}
+    <input type="submit" name="submit" value="Update">
+</form>
+{% endblock %}

@@ -11,6 +11,7 @@ class Employee(models.Model):
     name = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
     head_of = models.ManyToManyField('self', symmetrical=False, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
@@ -33,7 +34,6 @@ def validate_dimensions(value):
     for key in value.keys():
         if key not in allowed_keys:
             raise ValidationError(f"Invalid key '{key}' found. Only 'height', 'width', and 'depth' are allowed.")
-
 
 
 class Item(models.Model):

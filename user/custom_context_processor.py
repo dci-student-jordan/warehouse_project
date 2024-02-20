@@ -8,7 +8,6 @@ def custom_context(request):
     if request.path.startswith('/user/auth'):
         location = request.GET.get('location', "")
         links, style, continent = menu_links_style(("filter", location))
-        print("LOCATION:", location)
         context["style"] = style
         context["links"] = links
         context["location"] = location

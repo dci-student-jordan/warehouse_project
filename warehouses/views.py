@@ -1,14 +1,16 @@
 # warehouses.views.py
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from typing import Any
 from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponse as HttpResponse
+from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from .models import Item
 from .forms import ItemForm
 from django.db.models import Q
 from django.template.response import TemplateResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 
@@ -131,17 +133,18 @@ class Products(TemplateView):
         }
 
 
-class ProductDetailView(UpdateView):
+
+class ProductDetailView(LoginRequiredMixin, UpdateView):
     template_name = "product_detail.html"
     model = Item
     form_class = ItemForm
     success_url = reverse_lazy("index")
 
-    def post(self, request, *args, **kwargs):        
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):        
+    #     return super().post(request, *args, **kwargs)
     
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save()

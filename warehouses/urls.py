@@ -8,7 +8,7 @@ from .views import (
     List_Filtered,
     List_Items_Filtered,
     Search_Items,
-    Search_Items_Result
+    Search_Items_Result,
 )
 
 urlpatterns = [

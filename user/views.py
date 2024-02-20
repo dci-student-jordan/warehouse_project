@@ -37,6 +37,29 @@ class ContactView(FormView):
         return super().form_invalid(form)
 
 
+class LoginRequiredView(FormView):
+    template_name = 'registration/login_required.html'
+    form_class = LoginForm
+    success_url = reverse_lazy("index")
+
+
+    def get_success_url(self) -> str:
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            login(self.request, user)
+            return json_response(ContactForm(), csrf(self.request)['csrf_token'], 'contact', self.get_context_data())
+
+
 class LoginView(FormView):
     template_name = 'registration/login.html'
     form_class = LoginForm
@@ -57,7 +80,7 @@ class LoginView(FormView):
         
         if user is not None:
             login(self.request, user)
-            # force page reload
+            # offer_employee_status(username)
             return JsonResponse({"html":""})
         else:
             # Handle invalid login
@@ -98,7 +121,7 @@ class SignUpView(CreateView):
         # Log in the user after successful registration
         login(self.request, self.object)
         if self.request.user.is_authenticated:
-            return json_response(ContactForm(), csrf(self.request)['csrf_token'], 'contact', self.get_context_data())
+            return offer_employee_status(self.request.user.username)
 
         return response
     

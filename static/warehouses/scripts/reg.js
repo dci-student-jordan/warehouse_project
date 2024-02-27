@@ -78,7 +78,10 @@ function prepareNewForm (form_string) {
         })
         .then(response => response.json())
         .then(data => {
-            if (data["html"] == "") location.reload();
+            if (data["html"] == "") location.reload()
+            else if (data["html"] == "redirect") {
+                window.location.href = data["redirect_url"]
+            }
             else {
             // Replace #dynamiccontent with the fetched content
             document.querySelector('#dynamicContent').innerHTML = data["html"];

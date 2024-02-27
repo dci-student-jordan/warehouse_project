@@ -1,12 +1,14 @@
 {% extends "main.html" %}
 {% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static style %}">
+{% endblock %}
 {% block content %}
-<h1>It seems, you're an Employee, {{user.username}}:</h1>
-<p>Here you can connect your account to the old Employee account you used in the cli.</p>
-<p>Please simply enter your Password from the cli-tool (This operation is necessary only once).</p>
+<h1>Are you {{user.username}}, the employee?</h1>
+<p>If so, you can connect your old user from the commandlinetool to your account by typing your password here:</p>
 <form method="post">
     {% csrf_token %}
     {{form.as_p }}
-    <input type="submit" name="submit" value="Update">
+    <input type="submit" name="submit" value="Connect">
 </form>
 {% endblock %}

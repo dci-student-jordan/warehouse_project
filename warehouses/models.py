@@ -35,27 +35,22 @@ def validate_dimensions(value):
         if key not in allowed_keys:
             raise ValidationError(f"Invalid key '{key}' found. Only 'height', 'width', and 'depth' are allowed.")
 
+def _get_state_choices():
+    return [(value, value) for value in Item.objects.values_list("state", flat=True).distinct()]
+
+
+def _get_category_choices():
+    return [(value, value) for value in Item.objects.values_list("category", flat=True).distinct()]
+
 
 class Item(models.Model):
     '''Model For warehouse Items'''
-    state = models.CharField(max_length=100, choices=[('', 'Select State')])
-    category = models.CharField(max_length=100, choices=[('', 'Select Category')])
+    state = models.CharField(max_length=100, choices=_get_state_choices)
+    category = models.CharField(max_length=100, choices=_get_category_choices)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     date_of_stock = models.DateTimeField()
     name = models.CharField(max_length=100, null=True)
     dimensions = models.JSONField(null=True, blank=True, validators=([validate_dimensions]))
-
-
-    def get_state_choices(self):
-        return self.get_choices('state')
-
-    def get_category_choices(self):
-        return self.get_choices('category')
-
-    def get_choices(self, field_name):
-        return [(value, value) for value in Item.objects.values_list(field_name, flat=True).distinct()]
-
-
 
     def get_default_item_name(self, state, category):
         if category[-1] != "s":

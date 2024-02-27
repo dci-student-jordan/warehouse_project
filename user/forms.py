@@ -47,3 +47,11 @@ class ContactForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
         self.fields = add_class_to_fields(self.fields)
+        
+
+class ConnectEmployeeToUserForm(forms.Form):
+    template_name = "registration/connect_employee.html"
+
+    password = forms.CharField(widget=forms.PasswordInput)
+    
+    

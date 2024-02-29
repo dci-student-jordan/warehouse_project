@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from cli.toys import glued_string
 from django.core.exceptions import ValidationError
 import json
+from datetime import datetime
 
 # Create your models here.
 
@@ -85,9 +86,10 @@ class ItemOrder(models.Model):
 
 
 class Contact(models.Model):
-    Employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
+    datetime = models.DateTimeField(auto_now_add=True)
 
 
 class EmployeeWorkingHours(models.Model):
@@ -108,7 +110,6 @@ class EmployeeWorkingHours(models.Model):
 
 def populate_emp_working_hours():
     from random import randint
-    from datetime import datetime, timedelta
 
     for emp in Employee.objects.all():
         work_days = []

@@ -308,7 +308,7 @@ class Search_Items_Result(TemplateView):
         query = Q(shipped = False)
         # Iterate over each word and add a condition to the query
         for word in search_words:
-            query |= Q(category__icontains=word) | Q(state__icontains=word)# now query based on location
+            query &= Q(category__icontains=word) | Q(state__icontains=word)# now query based on location
         if location == "ALL":
             content_links = (
                 Item.objects

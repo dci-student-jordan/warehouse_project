@@ -6,30 +6,42 @@
 </form>
 <p><a href="{% url 'password_change' %}">Change password</a></p>
 <p>{{message}}</p>
-{% if user.is_staff %}
-    {% if working_hours %}
-        <h4>Your working times:</h4>
-        <ul>
-        {% for day in working_hours %}
-            <li>{{ day.get_week_day_display }}: {{ day.start_time }} - {{ day.end_time }}</li>
-        {% endfor %}
-        </ul>
-        <p><a href="{% url 'list_workinhours' %}">list of all employees' working hours</a></p>
-    {% endif %}
-    {% if edits %}
-        <h4>Your last edited Shop-Items:</h4>
-        <ul>
-        {% for edit in edits %}
-            <li>'{{ edit.item.name }}' on {{ edit.edited_at }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% if orders %}
-        <h4>Your last ordered Shop-Items:</h4>
-        <ul>
-        {% for order in orders %}
-            <li>{{order.amount}} '{{ order.item.first.name }}' on {{ order.ordered_at }}</li>
-        {% endfor %}
-        </ul>
+{% if user.is_authenticated %}
+    {% if user.is_staff %}
+        {% if working_hours %}
+            <h3>Your working times:</h3>
+            <ul>
+            {% for day in working_hours %}
+                <li>{{ day.get_week_day_display }}: {{ day.start_time }} - {{ day.end_time }}</li>
+            {% endfor %}
+            </ul>
+            <p><a href="{% url 'list_workinhours' %}">list of all employees' working hours</a></p>
+        {% endif %}
+        {% if edits %}
+            <h3>Your last edited Shop-Items:</h3>
+            <ul>
+            {% for edit in edits %}
+                <li>'{{ edit.item.name }}' on {{ edit.edited_at }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% if orders %}
+            <h3>Your last ordered Shop-Items:</h3>
+            <ul>
+            {% for order in orders %}
+                <li>{{order.amount}} '{{ order.item.first.name }}' on {{ order.ordered_at }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% if messages %}
+            <h3>Your messages:</h3>
+            <ol>
+            {% for message in messages %}
+                <li><h4>{{message.user}} wrote to you on {{message.datetime}}:</h4>
+                    <p>{{ message.message }}</p>
+                </li>
+            {% endfor %}
+            </ol>
+        {% endif %}
     {% endif %}
 {% endif %}

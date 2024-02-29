@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login, authenticate, logout
 from django.template.context_processors import csrf
 from django.core.exceptions import ValidationError
-from warehouses.models import Employee, EmployeeWorkingHours, ItemEdit, ItemOrder
+from warehouses.models import Employee, EmployeeWorkingHours, ItemEdit, ItemOrder, Contact
 
 
 
@@ -31,7 +31,7 @@ class ContactView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.save()
-        return super().form_valid(form)
+        return json_response(ContactForm(), csrf(self.request)['csrf_token'], 'contact', self.get_context_data(message=f"Your message has been submitted successfully."))
     
     def form_invalid(self, form: Any):
         print("Invalid CONTACT")
@@ -207,12 +207,13 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
         if "message" in kwargs.keys():
             context["message"] = kwargs["message"]
         user = self.request.user
-        if user.is_staff:
-            employee = Employee.objects.filter(user_id=user.pk).first()
+        if user.is_authenticated:
+            if user.is_staff:
+                employee = Employee.objects.filter(user_id=user.pk).first()
 
-            if employee:
-                context["working_hours"] = EmployeeWorkingHours.objects.filter(employee=employee).order_by("week_day")
-                context["edits"] = ItemEdit.objects.filter(employee=employee).order_by("-edited_at")[:5]
-                context["orders"] = ItemOrder.objects.filter(employee=employee).order_by("-ordered_at")[:5]
-            print("WORKINGHOURS:", context["working_hours"])
+                if employee:
+                    context["working_hours"] = EmployeeWorkingHours.objects.filter(employee=employee).order_by("week_day")
+                    context["edits"] = ItemEdit.objects.filter(employee=employee).order_by("-edited_at")[:5]
+                    context["orders"] = ItemOrder.objects.filter(employee=employee).order_by("-ordered_at")[:5]
+                    context["messages"] = Contact.objects.filter(employee=employee)
         return context

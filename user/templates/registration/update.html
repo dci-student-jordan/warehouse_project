@@ -5,3 +5,31 @@
     <button method="post" id="submitMess" type="submit">Update</button>
 </form>
 <p><a href="{% url 'password_change' %}">Change password</a></p>
+<p>{{message}}</p>
+{% if user.is_staff %}
+    {% if working_hours %}
+        <h4>Your working times:</h4>
+        <ul>
+        {% for day in working_hours %}
+            <li>{{ day.get_week_day_display }}: {{ day.start_time }} - {{ day.end_time }}</li>
+        {% endfor %}
+        </ul>
+        <p><a href="{% url 'list_workinhours' %}">list of all employees' working hours</a></p>
+    {% endif %}
+    {% if edits %}
+        <h4>Your last edited Shop-Items:</h4>
+        <ul>
+        {% for edit in edits %}
+            <li>'{{ edit.item.name }}' on {{ edit.edited_at }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% if orders %}
+        <h4>Your last ordered Shop-Items:</h4>
+        <ul>
+        {% for order in orders %}
+            <li>{{order.amount}} '{{ order.item.first.name }}' on {{ order.ordered_at }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endif %}

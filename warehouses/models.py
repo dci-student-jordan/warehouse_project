@@ -34,6 +34,9 @@ def validate_dimensions(value):
     for key in value.keys():
         if key not in allowed_keys:
             raise ValidationError(f"Invalid key '{key}' found. Only 'height', 'width', and 'depth' are allowed.")
+        
+    json_string = json.dumps(value)
+    return json_string
 
 def _get_state_choices():
     return [(value, value) for value in Item.objects.values_list("state", flat=True).distinct()]
@@ -50,7 +53,8 @@ class Item(models.Model):
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     date_of_stock = models.DateTimeField()
     name = models.CharField(max_length=100, null=True)
-    dimensions = models.JSONField(null=True, blank=True, validators=([validate_dimensions]))
+    dimensions = models.JSONField(null=True, blank=True, validators=[validate_dimensions])
+    shipped = models.BooleanField(default=False)
 
     def get_default_item_name(self, state, category):
         if category[-1] != "s":
@@ -66,9 +70,53 @@ class Item(models.Model):
         super().save(*args, **kwargs)
 
 
+class ItemEdit(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    edited_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class ItemOrder(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    item =models.ManyToManyField(Item, related_name='ordered_items')
+    amount = models.IntegerField()
+    ordered_at = models.DateTimeField(auto_now_add=True)
+
 
 class Contact(models.Model):
     Employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
+
+
+class EmployeeWorkingHours(models.Model):
+    WEEKDAY_CHOICES = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+    )
+
+    week_day = models.IntegerField(choices=WEEKDAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+
+def populate_emp_working_hours():
+    from random import randint
+    from datetime import datetime, timedelta
+
+    for emp in Employee.objects.all():
+        work_days = []
+        days_to_work = randint(1,5)
+        for day in range(days_to_work):
+            if not day in work_days:
+                work_days.append(day)
+                start_time = datetime.strptime(f'0{randint(7, 9)}:00', '%H:%M')
+                end_time = datetime.strptime(f'{randint(10, 18)}:00', '%H:%M')
+                EmployeeWorkingHours.objects.create(week_day=day, start_time=start_time, end_time=end_time, employee=emp)
 

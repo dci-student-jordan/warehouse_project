@@ -1,9 +1,9 @@
 from typing import Any
 from django.template.loader import render_to_string
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.urls import reverse_lazy, reverse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import CreateView, FormView, UpdateView
 from .forms import ContactForm, LoginForm, CustomUserCreationForm, add_class_to_fields, ConnectEmployeeToUserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,11 +12,11 @@ from django.http import JsonResponse
 from django.contrib.auth import login, authenticate, logout
 from django.template.context_processors import csrf
 from django.core.exceptions import ValidationError
-from warehouses.models import Employee
+from warehouses.models import Employee, EmployeeWorkingHours, ItemEdit, ItemOrder
 
 
 
-class ContactView(FormView):
+class ContactView(LoginRequiredMixin, FormView):
     template_name = 'registration/contact.html'
     form_class = ContactForm
     success_url = reverse_lazy("index")
@@ -124,14 +124,6 @@ class ConnectEmployeeView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy("index")
     template_name = "registration/connect_employee.html"
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        print("connectPOST:", request.user, args, kwargs)
-        return super().post(request, *args, **kwargs)
-    
-    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        print("connectGET:", request.user, args, kwargs)
-        return super().get(request, *args, **kwargs)
-
     def form_valid(self, form):
         given_password = form.cleaned_data['password']
         emp = get_object_or_404(Employee, name=self.request.user.username)
@@ -140,6 +132,10 @@ class ConnectEmployeeView(LoginRequiredMixin, FormView):
                 emp.user = self.request.user
                 emp.save()
                 print("Stored Emp")
+                make_staff = User.objects.get(pk=self.request.user.pk)
+                make_staff.is_staff = True
+                make_staff.save()
+
             else:
                 print("Passwords not equal")
                 raise ValidationError(f"That's not the right password, {self.request.user.username}.")
@@ -166,18 +162,20 @@ class SignUpView(CreateView):
             return super().get_success_url()
 
     def form_valid(self, form):
+        super().form_valid(form)
+        form.save()
         
         # Log in the user after successful registration
         login(self.request, self.object)
         if self.request.user.is_authenticated and offer_employee_status(self.request.user):
-            super().form_valid(form)
             return JsonResponse({"html":"redirect", "redirect_url": reverse("connect_employee")})
         else:
-            return super().form_valid(form)
+            return JsonResponse({"html":""})
     
     def form_invalid(self, form):
         return json_response(form, csrf(self.request)['csrf_token'], 'signup', self.get_context_data())
-    
+
+
 class UpdateUserView(LoginRequiredMixin, UpdateView):    
     model = User
     success_url = reverse_lazy("index")
@@ -200,3 +198,21 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form):
         return json_response(form, csrf(self.request)['csrf_token'], 'update', self.get_context_data())
     
+    def form_valid(self, form):
+        super().form_valid(form)
+        return json_response(form, csrf(self.request)['csrf_token'], 'update', self.get_context_data(message="Your account data have been updated successfully."))
+    
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        if "message" in kwargs.keys():
+            context["message"] = kwargs["message"]
+        user = self.request.user
+        if user.is_staff:
+            employee = Employee.objects.filter(user_id=user.pk).first()
+
+            if employee:
+                context["working_hours"] = EmployeeWorkingHours.objects.filter(employee=employee).order_by("week_day")
+                context["edits"] = ItemEdit.objects.filter(employee=employee).order_by("-edited_at")[:5]
+                context["orders"] = ItemOrder.objects.filter(employee=employee).order_by("-ordered_at")[:5]
+            print("WORKINGHOURS:", context["working_hours"])
+        return context

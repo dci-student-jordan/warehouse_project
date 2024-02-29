@@ -1,6 +1,6 @@
 from sys import argv, path
 path.append("../")
-from warehouses.models import Warehouse, Item, Employee
+from warehouses.models import Warehouse, Item, Employee, populate_emp_working_hours
 
 def populate_warehouses(items):
     # populating the databases warehouse table:
@@ -55,6 +55,7 @@ def main(mode):
             populate_warehouses(stock_list)
         if personnel_list:
             populate_employees(personnel_list)
+        populate_emp_working_hours()
 
 
     except IndexError as e:

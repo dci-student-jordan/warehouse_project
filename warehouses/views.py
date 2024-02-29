@@ -1,16 +1,16 @@
 # warehouses.views.py
-from django.urls import reverse_lazy, reverse
-from typing import Any
-from django.http import HttpRequest, HttpResponse
+from django.urls import reverse_lazy
+from django.http import HttpResponse
 from django.http.response import HttpResponse as HttpResponse
-from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
-from .models import Item
-from .forms import ItemForm
-from django.db.models import Q
+from django.views.generic.edit import UpdateView, FormView
+from .models import Item, EmployeeWorkingHours, ItemEdit, Employee, ItemOrder
+from .forms import ItemForm, OrderItemsForm
+from django.db.models import Q, Count
+from django.db import transaction
 from django.template.response import TemplateResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from user.custom_mixins import StaffRequiredMixin
 
 # Create your views here.
 
@@ -59,6 +59,8 @@ def get_reg_from_request(request):
         # Handle non-TemplateResponse cases
         return response.content
 
+class NotFound(TemplateView):
+    template_name = "not_found.html"
 
 class Index(TemplateView):
     template_name = "main.html"
@@ -98,6 +100,7 @@ class About(TemplateView):
 class Warehouse(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location):
+        super().get_context_data()
         links, style, continent = menu_links_style(("warehouse", location))
         return {
             "reg": get_reg_from_request(self.request),
@@ -117,10 +120,10 @@ class Products(TemplateView):
     def get_context_data(self, location):
         links, style, continent = menu_links_style(("products", location))
         if location == "ALL":
-            content = Item.objects.all()
+            content = Item.objects.filter(shipped=False)
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content = Item.objects.filter(warehouse=wh)
+            content = Item.objects.filter(warehouse=wh, shipped=False)
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
@@ -134,20 +137,16 @@ class Products(TemplateView):
 
 
 
-class ProductDetailView(LoginRequiredMixin, UpdateView):
+class ProductDetailView(StaffRequiredMixin, LoginRequiredMixin, UpdateView):
     template_name = "product_detail.html"
     model = Item
     form_class = ItemForm
-    success_url = reverse_lazy("index")
-
-    # def post(self, request, *args, **kwargs):        
-    #     return super().post(request, *args, **kwargs)
-    
-    # def get(self, request, *args, **kwargs):
-    #     return super().get(request, *args, **kwargs)
+    success_url = reverse_lazy('thanks', args=["update"])
 
     def form_valid(self, form):
         self.object = form.save()
+        emp = Employee.objects.filter(user_id=self.request.user.pk).first()
+        ItemEdit.objects.create(employee=emp, item=self.object)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -170,6 +169,73 @@ class ProductDetailView(LoginRequiredMixin, UpdateView):
             "header_text":f"Update Item #{content.pk} from {location}"
         })
         return context
+    
+
+class OrderView(LoginRequiredMixin, StaffRequiredMixin, FormView):
+    template_name = 'product_order.html'
+    form_class = OrderItemsForm
+    success_url = reverse_lazy('thanks', args=["order"])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        amount = form.cleaned_data['amount']
+        items_to_order = Item.objects.filter(
+            state=self.state, category=self.category, shipped=False
+        )
+        items_to_order = items_to_order.order_by('id')[:amount]
+        emp = Employee.objects.filter(user_id=self.request.user.pk).first()
+        item_order = ItemOrder.objects.create(employee=emp, amount=amount)
+        for item in items_to_order:
+            item_order.item.add(item)
+            item.shipped = True
+            item.save()
+        return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['location'] = self.kwargs.get('location')
+        kwargs['state'] = self.kwargs.get('state')
+        kwargs['category'] = self.kwargs.get('category')
+        return kwargs
+
+    def get_initial(self):
+        self.location = self.kwargs.get('location')
+        self.state = self.kwargs.get('state')
+        self.category = self.kwargs.get('category')
+
+        # Query the database to get the maximum available amount of items
+        # matching the provided state, category, and location
+        max_available_amount = Item.objects.filter(
+            state=self.state, category=self.category, shipped=False
+        ).count()
+
+        return {'amount': max_available_amount}
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['location'] = self.location
+        links, style, continent = menu_links_style(("product", self.location))
+        context.update({
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "location":self.location,
+            "title":f"{'A' if self.location == 'EU' else 'B' if self.location == 'USA' else 'C' if self.location == 'ASIA' else 'D' if self.location == 'INDIA' else 'Your'}-Warehouse {self.location if self.location != 'ALL' else ''}",
+            "header_text":f"Order Items from {self.location}",
+            "product":f"'{self.state} {self.category}'"
+        })
+        return context
+
+class Thanks(TemplateView):
+    template_name = "thanks.html"
+
+    def get_context_data(self, action, **kwargs):
+        message = "Your order has been successfully placed." if action == "order" else \
+                    "Your update is now stored in our database."
+        context = super().get_context_data(**kwargs)
+        context["message"] = message
+
+        return context
 
 
 class List_Filtered(TemplateView):
@@ -177,10 +243,10 @@ class List_Filtered(TemplateView):
     def get_context_data(self, location, filter):
         links, style, continent = menu_links_style(("filter", location))
         if location == "ALL":
-            content_links = Item.objects.all().values(filter).distinct()
+            content_links = Item.objects.filter(shipped=False).values(filter).annotate(count=Count('id')).distinct()
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content_links = Item.objects.filter(warehouse=wh).values(filter).distinct()
+            content_links = Item.objects.filter(warehouse=wh, shipped=False).values(filter).annotate(count=Count('id')).distinct()
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
@@ -198,11 +264,12 @@ class List_Items_Filtered(TemplateView):
     def get_context_data(self, location, filter, filter_string):
         links, style, continent = menu_links_style(("filter_items", location))
         args = {filter:filter_string}
+        print("HERE")
         if location == "ALL":
-            content = Item.objects.filter(**args)
+            content = Item.objects.filter(shipped=False, **args)
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content = Item.objects.filter(warehouse=wh, **args)
+            content = Item.objects.filter(warehouse=wh, shipped=False, **args)
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
@@ -238,16 +305,27 @@ class Search_Items_Result(TemplateView):
         # Split the search term into individual words
         search_words = search_term.split()
         # Create a Q object to build the query dynamically
-        query = Q()
+        query = Q(shipped = False)
         # Iterate over each word and add a condition to the query
         for word in search_words:
-            query |= Q(category__icontains=word) | Q(state__icontains=word)
-        # now query based on location
+            query |= Q(category__icontains=word) | Q(state__icontains=word)# now query based on location
         if location == "ALL":
-            content_links = Item.objects.filter(query).distinct()
+            content_links = (
+                Item.objects
+                .filter(query)
+                .values('category', 'state')
+                .annotate(count=Count('id'))
+                .distinct()
+            )
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content_links = Item.objects.filter(query, warehouse=wh).distinct()
+            content_links = (
+                Item.objects
+                .filter(query, warehouse=wh)
+                .values('category', 'state')
+                .annotate(count=Count('id'))
+                .distinct()
+            )
         content_text = f"'{search_term}' didn't match any result for items in {continent}" \
             if not len(content_links) else f"Your search for '{search_term}' in {continent} has {len(content_links)} matches:"
         return {
@@ -262,4 +340,28 @@ class Search_Items_Result(TemplateView):
             "content_links": content_links,
             "search_item": True,
             "search_prompt": "Not what are you looking for?"
+        }
+    
+class WorkingHoursView(LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+    template_name = "employees.html"
+    def get_context_data(self):
+        links, style, continent = menu_links_style(("filter_items", "location"))
+        # Query all EmployeeWorkingHours records and order them by employee and week_day
+        working_hours = EmployeeWorkingHours.objects.select_related('employee').order_by('employee__id', 'week_day')
+
+        # Create a dictionary to store working hours grouped by employee
+        employee_working_hours = {}
+        for hour in working_hours:
+            employee = hour.employee
+            if employee not in employee_working_hours:
+                employee_working_hours[employee] = []
+            employee_working_hours[employee].append(hour)
+        return {
+            "reg": get_reg_from_request(self.request),
+            "style":style,
+            "links": links,
+            "title":"working Hours",
+            "header_text": "All Working Hours",
+            "content_text":[f"Here is a list of all employees in {continent}:"],
+            'employee_working_hours': employee_working_hours
         }

@@ -196,6 +196,8 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
             contact.communications.add(communication)
             # super().form_valid(form)
             return redirect('thanks', args=['message'])
+        else:
+            return super().post(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
         next_url = self.request.GET.get('next')

@@ -3,16 +3,16 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.http.response import HttpResponse as HttpResponse
 from django.urls import reverse_lazy, reverse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views.generic import CreateView, FormView, UpdateView
-from .forms import ContactForm, LoginForm, CustomUserCreationForm, add_class_to_fields, ConnectEmployeeToUserForm
+from .forms import ContactForm, LoginForm, CustomUserCreationForm, add_class_to_fields, ConnectEmployeeToUserForm, ReplyForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate, logout
 from django.template.context_processors import csrf
 from django.core.exceptions import ValidationError
-from warehouses.models import Employee, EmployeeWorkingHours, ItemEdit, ItemOrder, Contact
+from warehouses.models import Employee, EmployeeWorkingHours, ItemEdit, ItemOrder, Contact, Communication
 
 
 
@@ -182,6 +182,21 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
     template_name = "registration/update.html"
     fields = ('username', 'first_name', 'last_name', 'email')
 
+    def post(self, request, *args, **kwargs):
+        if 'message' in request.POST:
+            print("HERE, PLEASE")
+            form = ReplyForm(request.POST)
+            message = form.cleaned_data['message']
+            contact_id = kwargs.get('contact_id')
+            contact = get_object_or_404(Contact, pk=contact_id)
+            communication = Communication.objects.create(
+                user=self.request.user,
+                message=message
+            )
+            contact.communications.add(communication)
+            # super().form_valid(form)
+            return redirect('thanks', args=['message'])
+
     def get_success_url(self) -> str:
         next_url = self.request.GET.get('next')
         if next_url:
@@ -208,6 +223,7 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
             context["message"] = kwargs["message"]
         user = self.request.user
         if user.is_authenticated:
+            reply = False
             if user.is_staff:
                 employee = Employee.objects.filter(user_id=user.pk).first()
 
@@ -215,5 +231,32 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
                     context["working_hours"] = EmployeeWorkingHours.objects.filter(employee=employee).order_by("week_day")
                     context["edits"] = ItemEdit.objects.filter(employee=employee).order_by("-edited_at")[:5]
                     context["orders"] = ItemOrder.objects.filter(employee=employee).order_by("-ordered_at")[:5]
-                    context["messages"] = Contact.objects.filter(employee=employee)
+                    context["contacts"] = Contact.objects.filter(employee=employee)
+                    if context["contacts"]:
+                        reply = True
+            context["communications"] = Contact.objects.filter(user=user)
+            if context["communications"]:
+                reply = True
+            if reply and not "reply_form" in context.keys():
+                context['reply_form'] = ReplyForm()
+
+
         return context
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    
+def reply_to_contact(request, contact_id):
+    if request.method == 'POST':
+        form = ReplyForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message']
+            contact = get_object_or_404(Contact, pk=contact_id)
+            communication = Communication.objects.create(
+                user=request.user,
+                message=message
+            )
+            contact.communications.add(communication)
+            return redirect(reverse_lazy('thanks', args=['message']))

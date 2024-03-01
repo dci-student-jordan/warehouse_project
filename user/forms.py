@@ -1,6 +1,6 @@
 # user.forms.py
 from django import forms
-from warehouses.models import Employee, Contact
+from warehouses.models import Employee, Contact, Communication
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -42,12 +42,19 @@ class ContactForm(forms.ModelForm):
 
     class Meta:
         model = Contact
-        exclude = ["user"]
+        exclude = ["user", "communications"]
     
     def __init__(self, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
         self.fields = add_class_to_fields(self.fields)
-        
+
+
+class ReplyForm(forms.ModelForm):
+    message = forms.CharField(widget=forms.TextInput(attrs={'Placeholder': "Your reply here:"}))
+    class Meta:
+        model = Communication
+        exclude = ["user"]
+
 
 class ConnectEmployeeToUserForm(forms.Form):
     template_name = "registration/connect_employee.html"

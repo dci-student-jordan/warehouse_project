@@ -9,7 +9,8 @@ from .views import (
     ContactView,
     custom_logout,
     LoginRequiredView,
-    ConnectEmployeeView
+    ConnectEmployeeView,
+    reply_to_contact
 )
 
 urlpatterns = [
@@ -22,4 +23,6 @@ urlpatterns = [
     path('logout/', custom_logout, name="logout"),
     path("login/", LoginView.as_view(), name="login"),
     path("login_required/", LoginRequiredView.as_view(), name="login_required"),
+    path('reply/<int:contact_id>/', reply_to_contact, name='reply_to_contact'),
+
 ]

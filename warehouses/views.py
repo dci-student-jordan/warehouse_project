@@ -231,7 +231,8 @@ class Thanks(TemplateView):
 
     def get_context_data(self, action, **kwargs):
         message = "Your order has been successfully placed." if action == "order" else \
-                    "Your update is now stored in our database."
+                    "Your update is now stored in our database."  if action == "update" else \
+                    "Your message has been transmitted successfully."
         context = super().get_context_data(**kwargs)
         context["message"] = message
 

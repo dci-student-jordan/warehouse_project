@@ -85,11 +85,18 @@ class ItemOrder(models.Model):
     ordered_at = models.DateTimeField(auto_now_add=True)
 
 
+class Communication(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    message = models.TextField()
+    datetime = models.DateTimeField(auto_now_add=True)
+
+
 class Contact(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     datetime = models.DateTimeField(auto_now_add=True)
+    communications = models.ManyToManyField(Communication, related_name='contacts')
 
 
 class EmployeeWorkingHours(models.Model):

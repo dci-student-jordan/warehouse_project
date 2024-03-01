@@ -1,4 +1,5 @@
-<form method="post" action="{% url 'account' user.id %}" id="new-form">
+<div style="max-height: 75vh; overflow-y: auto;">
+    <form method="post" action="{% url 'account' user.id %}" id="new-form">
     <h3>Update Your Account data here:</h3>
     {% csrf_token %}
     {{ form.as_p }}
@@ -33,15 +34,42 @@
             {% endfor %}
             </ul>
         {% endif %}
-        {% if messages %}
+        {% if contacts %}
             <h3>Your messages:</h3>
             <ol>
-            {% for message in messages %}
-                <li><h4>{{message.user}} wrote to you on {{message.datetime}}:</h4>
-                    <p>{{ message.message }}</p>
+            {% for contact in contacts %}
+                <li><h4>{{contact.user}} wrote to you on {{contact.datetime}}:</h4>
+                    <p>{{ contact.message }}</p>
+                    {% for comunication in contact.communications.all %}
+                        <p><span style="font-style: italic;">{{comunication.user}}:</span> {{ comunication.message }} ({{ comunication.datetime }})</p>
+                    {% endfor %}
+                    <form method="post" action="{% url 'reply_to_contact' contact.pk %}">
+                        {% csrf_token %}
+                        {{ reply_form.as_p }}
+                        <button type="submit">Reply</button>
+                    </form>
                 </li>
             {% endfor %}
             </ol>
         {% endif %}
     {% endif %}
+    {% if communications %}
+        <h3>Your messages:</h3>
+        <ol>
+        {% for communication in communications %}
+            <li><h4>On {{ communication.datetime }} you wrote to {{ communication.employee.name }}:</h4>
+                <p>{{ communication.message }}</p>
+                {% for reply in communication.communications.all %}
+                    <p><span style="font-style: italic;">{{ reply.user }}:</span> {{ reply.message }} ({{ reply.datetime }})</p>
+                {% endfor %}
+                <form method="post" action="{% url 'reply_to_contact' communication.pk %}">
+                    {% csrf_token %}
+                    {{ reply_form.as_p }}
+                    <button type="submit">Reply</button>
+                </form>            
+            </li>
+        {% endfor %}
+        </ol>
+    {% endif %}
 {% endif %}
+</div>

@@ -1,8 +1,9 @@
 
+{% load crispy_forms_tags %}
 <form method="post" action="{% url 'contact' %}" id="new-form">
     <h3>Contact your favorite employee here:</h3>
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Send Message</button>
+    {{ form|crispy }}
+    <button class="btn btn-outline-light" type="submit">Send Message</button>
 </form>
 <p>{{message}}</p>

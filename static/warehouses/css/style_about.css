@@ -4,24 +4,28 @@ body {
     background-size: cover;
 }
 
-.loginShower h1 {
-    font-size: small;
-    color: rgba(237, 215, 172, 0.549);
-    margin-right: 50px;
-}
-main section p {
-    font-size:small;
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:rgb(240, 184, 42);
 }
 
-main {
-    justify-content:center;
-    text-align:center;
+a, .btn {
+    color:rgb(240, 184, 42);
+    font-size: larger;
 }
 
 @media screen and (min-width:800px) {
-    main section p {
-        font-size:medium;
-        text-align: start;
-        margin-left: 23%;
+    main {
+        justify-content:center;
+        text-align:center;
+    }
+    
+    section {
+        margin-right: 27vw;
+    }
+    
+    
+    footer {
+        margin-left: 37vw;
     }
 }

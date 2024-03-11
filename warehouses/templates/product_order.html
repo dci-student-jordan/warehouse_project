@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load crispy_forms_tags %}
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static style %}">
@@ -7,7 +8,7 @@
 <h3>Select the number of {{ product }} items you want to purchase:</h3>
 <form method="post">
     {% csrf_token %}
-    {{form.as_p }}
-    <input type="submit" name="submit" value="Order now.">
+    {{form|crispy }}
+    <input class="btn btn-outline-light" type="submit" name="submit" value="Order now.">
 </form>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% load crispy_forms_tags %}
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static style %}">
@@ -8,7 +9,7 @@
 <p>If so, you can connect your old user from the commandlinetool to your account by typing your password here:</p>
 <form method="post">
     {% csrf_token %}
-    {{form.as_p }}
-    <input type="submit" name="submit" value="Connect">
+    {{form|crispy }}
+    <input class="btn btn-outline-light" type="submit" name="submit" value="Connect">
 </form>
 {% endblock %}

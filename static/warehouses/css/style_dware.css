@@ -1,34 +1,32 @@
 body {
-    background-color: rgb(66, 44, 1);
     background-image: url(../Pics/dwarehouse.jpeg);
+    background-position-y: 100%;
+    background-size: cover;
 }
 
-main h1 {
-    font-size: xx-large;
-    color: rgba(237, 215, 172, 0.549);
-    margin-right: 50px;
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:rgb(238, 255, 0); 
 }
 
-main section {
-    margin-left: 21%;
-    margin-right: 9%;
-    margin-top: 50px;
-    justify-content: center;
-    text-align:justify;
-    font-size: x-large;
+a, .btn {
     color:rgb(238, 255, 0);
-}
-
-a {
-    color:rgb(238, 255, 0);
-}
-
-.loginShower h3{
-    color:rgb(238, 255, 0);
+    font-size: larger;
 }
 
 @media screen and (min-width:800px) {
-    main section p {
-        font-size:medium;
+    main {
+        justify-content:center;
+        text-align:center;
+    }
+
+    section {
+        margin-right: 27vw;
+        margin-left: 13vw;
+    }
+
+
+    footer {
+        margin-right: 21vw;
     }
 }

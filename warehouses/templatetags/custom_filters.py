@@ -11,3 +11,7 @@ def glue(to_glue):
 @register.filter(name='ends_with_s')
 def ends_with_s(value):
     return value[-1] == 's'
+
+@register.filter(name='is_list')
+def args_to_path(args):
+    return type(args) == list

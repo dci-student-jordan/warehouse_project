@@ -10,13 +10,13 @@ function setStyles(displayLoginForm, displayVanish, height) {
     loginForm.style.display = displayLoginForm;
     vanish.style.display = displayVanish;
     
-    if (screen.width < 600) {
-        loginShower.style.height = height;
-    }
+    // if (screen.width < 600) {
+    //     loginShower.style.height = height;
+    // }
 }
 
 loginShower.addEventListener('mouseover', () => {
-    setStyles('block', 'none', '300px');
+    setStyles('block', 'none', '20%');
 });
 
 function hideLogin() {

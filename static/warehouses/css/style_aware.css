@@ -1,34 +1,32 @@
 body {
     background-image: url(../Pics/awarehouse.jpeg);
+    background-position-y: 100%;
+    background-size: cover;
 }
 
-main section {
-    margin-right: 15%;
-    margin-top: 20px;
-    margin-left: 30%;
-    justify-content: center;
-    text-align: start;
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
     color: rgb(255, 81, 0);
 }
 
-a {
+a, .btn {
     color: rgb(255, 81, 0);
-}
-
-.loginShower h3{
-    color: rgb(255, 81, 0);
-}
-
-main h1 {
-    color: rgba(237, 215, 172, 0.549);
+    font-size: larger;
 }
 
 @media screen and (min-width:800px) {
-    main section p {
-        font-size:medium;
+    main {
+        justify-content:space-around;
+        text-align:left;
     }
-    main section {
-        margin-right: 29%;
-        margin-left: 10%;
+
+    section {
+        margin-left: 27vw;
+    }
+
+
+    footer {
+        margin-right: 37vw;
     }
 }
+

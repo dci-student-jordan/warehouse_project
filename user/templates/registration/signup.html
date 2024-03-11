@@ -1,6 +1,7 @@
+{% load crispy_forms_tags %}
 <form method="post" action="{% url 'signup' %}" id="new-form">
     <h3>Sign up as registered user here:</h3>
     {% csrf_token %}
-    {{ form.as_p }}
-    <button method="post" id="submitMess" type="submit">Sign Up</button>
+    {{ form|crispy }}
+    <button class="btn btn-outline-light" method="post" id="submitMess" type="submit">Sign Up</button>
 </form>

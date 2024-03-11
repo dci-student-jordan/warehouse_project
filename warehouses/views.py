@@ -16,21 +16,23 @@ from user.custom_mixins import StaffRequiredMixin
 
 def menu_links_style(exclude):
     links = [
-        {"link":("index", []), "name":"Home", "menu":[{"link":("about", []), "name":"About"}]},
-        {"link":("warehouse", "EU"), "name":"Awarehouse", "menu":[{"link":("products", "EU"), "name":"Products"}]},
-        {"link":("warehouse", "USA"), "name":"Bewarehouse", "menu":[{"link":("products", "USA"), "name":"Products"}]},
-        {"link":("warehouse", "ASIA"), "name":"Seewarehouse", "menu":[{"link":("products", "ASIA"), "name":"Products"}]},
-        {"link":("warehouse", "INDIA"), "name":"Dewarehouse", "menu":[{"link":("products", "INDIA"), "name":"Products"}]}
+        {"link":("index", ()), "name":"Home", "menu":[{"link":("index", ()), "name":"Home"}, {"link":("about", ()), "name":"About"}, {"link":("products", "ALL"), "name":"All Products"}, {"link":("search", "ALL"), "name":"Search all products"}, {"link":("filtered", ["ALL", "category"]), "name":"Search products by category"}, {"link":("filtered", ["ALL", "state"]), "name":"Search products by state"}]},
+        {"link":("warehouse", "EU"), "name":"Awarehouse", "menu":[{"link":("warehouse", "EU"), "name":"Awarehouse Home"}, {"link":("products", "EU"), "name":"EU Products"}, {"link":("search", "EU"), "name":"Search EU products"}, {"link":("filtered", ["EU", "category"]), "name":"Search EU products by category"}, {"link":("filtered", ["EU", "state"]), "name":"Search EU products by state"}]},
+        {"link":("warehouse", "USA"), "name":"Bewarehouse", "menu":[{"link":("warehouse", "USA"), "name":"Bewarehouse Home"}, {"link":("products", "USA"), "name":"USA Products"}, {"link":("search", "USA"), "name":"Search USA products"}, {"link":("filtered", ["USA", "category"]), "name":"Search USA products by category"}, {"link":("filtered", ["USA", "state"]), "name":"Search USA products by state"}]},
+        {"link":("warehouse", "ASIA"), "name":"Seawarehouse", "menu":[{"link":("warehouse", "ASIA"), "name":"Seawarehouse Home"}, {"link":("products", "ASIA"), "name":"ASIA Products"}, {"link":("search", "ASIA"), "name":"Search ASIA products"}, {"link":("filtered", ["ASIA", "category"]), "name":"Search ASIA products by category"}, {"link":("filtered", ["ASIA", "state"]), "name":"Search ASIA products by state"}]},
+        {"link":("warehouse", "INDIA"), "name":"Dewarehouse", "menu":[{"link":("warehouse", "INDIA"), "name":"Dewarehouse Home"}, {"link":("products", "INDIA"), "name":"INDIA Products"}, {"link":("search", "INDIA"), "name":"Search INDIA products"}, {"link":("filtered", ["INDIA", "category"]), "name":"Search INDIA products by category"}, {"link":("filtered", ["INDIA", "state"]), "name":"Search INDIA products by state"}]},
     ]
     def un_menu(link:dict):
         if "menu" in link.keys():
             link["menu"] = [l for l in link["menu"] if not l["link"] == exclude]
-        if link["link"] == exclude:
+        elif link["link"] == exclude:
             menu = link["menu"][1:]
             link = link["menu"][0]
             link["menu"] = menu
         return link
     links = [un_menu(link) for link in links]
+    if type(exclude[1]) == list:
+        exclude = exclude[1]
     stc = "a" if "EU" in exclude else \
         "b" if "USA" in exclude else \
         "c" if "ASIA"  in exclude else \
@@ -64,7 +66,7 @@ class NotFound(TemplateView):
 
 class Index(TemplateView):
     template_name = "main.html"
-    links, style, continent = menu_links_style(("index", []))
+    links, style, continent = menu_links_style(("index", ()))
     
     def get_context_data(self):
         context = {
@@ -79,7 +81,7 @@ class Index(TemplateView):
 
 class About(TemplateView):
     template_name = "about.html"
-    links, style, continent = menu_links_style(("about", []))
+    links, style, continent = menu_links_style(("about", ()))
     def get_context_data(self):
         return {
             "reg": get_reg_from_request(self.request),
@@ -120,10 +122,10 @@ class Products(TemplateView):
     def get_context_data(self, location):
         links, style, continent = menu_links_style(("products", location))
         if location == "ALL":
-            content = Item.objects.filter(shipped=False)
+            content = Item.objects.filter(shipped=False).values("category", "state").annotate(count=Count('id')).distinct()
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content = Item.objects.filter(warehouse=wh, shipped=False)
+            content = Item.objects.filter(warehouse=wh, shipped=False).values("category", "state").annotate(count=Count('id')).distinct()
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,
@@ -242,7 +244,7 @@ class Thanks(TemplateView):
 class List_Filtered(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location, filter):
-        links, style, continent = menu_links_style(("filter", location))
+        links, style, continent = menu_links_style(("filtered", [location, filter]))
         if location == "ALL":
             content_links = Item.objects.filter(shipped=False).values(filter).annotate(count=Count('id')).distinct()
         else:
@@ -263,9 +265,8 @@ class List_Filtered(TemplateView):
 class List_Items_Filtered(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location, filter, filter_string):
-        links, style, continent = menu_links_style(("filter_items", location))
+        links, style, continent = menu_links_style(("filtered", [location, filter]))
         args = {filter:filter_string}
-        print("HERE")
         if location == "ALL":
             content = Item.objects.filter(shipped=False, **args)
         else:
@@ -286,7 +287,7 @@ class List_Items_Filtered(TemplateView):
 class Search_Items(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location):
-        links, style, continent = menu_links_style(("filter_items", location))
+        links, style, continent = menu_links_style(("search", location))
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,

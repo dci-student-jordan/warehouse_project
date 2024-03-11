@@ -1,9 +1,10 @@
+{% load crispy_forms_tags %}
 <div style="max-height: 75vh; overflow-y: auto;">
     <form method="post" action="{% url 'account' user.id %}" id="new-form">
     <h3>Update Your Account data here:</h3>
     {% csrf_token %}
-    {{ form.as_p }}
-    <button method="post" id="submitMess" type="submit">Update</button>
+    {{ form|crispy }}
+    <button class="btn btn-outline-light" method="post" id="submitMess" type="submit">Update</button>
 </form>
 <p><a href="{% url 'password_change' %}">Change password</a></p>
 <p class="errorlist">{{message}}</p>
@@ -45,8 +46,8 @@
                     {% endfor %}
                     <form method="post" action="{% url 'reply_to_contact' contact.pk %}">
                         {% csrf_token %}
-                        {{ reply_form.as_p }}
-                        <button type="submit">Reply</button>
+                        {{ reply_form|crispy }}
+                        <button class="btn btn-outline-light" type="submit">Reply</button>
                     </form>
                 </li>
             {% endfor %}
@@ -64,8 +65,8 @@
                 {% endfor %}
                 <form method="post" action="{% url 'reply_to_contact' communication.pk %}">
                     {% csrf_token %}
-                    {{ reply_form.as_p }}
-                    <button type="submit">Reply</button>
+                    {{ reply_form|crispy }}
+                    <button class="btn btn-outline-light" type="submit">Reply</button>
                 </form>            
             </li>
         {% endfor %}

@@ -1,5 +1,6 @@
 from sys import argv, path
 path.append("../")
+path.append("../../")
 from warehouses.models import Warehouse, Item, Employee, populate_emp_working_hours
 
 def populate_warehouses(items):

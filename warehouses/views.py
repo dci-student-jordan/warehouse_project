@@ -6,7 +6,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView, FormView
 from .models import Item, EmployeeWorkingHours, ItemEdit, Employee, ItemOrder
 from .forms import ItemForm, OrderItemsForm
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Min, F
 from django.db import transaction
 from django.template.response import TemplateResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -121,11 +121,12 @@ class Products(TemplateView):
     template_name = "warehouse.html"
     def get_context_data(self, location):
         links, style, continent = menu_links_style(("products", location))
+        first_pk = F('id')
         if location == "ALL":
-            content = Item.objects.filter(shipped=False).values("category", "state").annotate(count=Count('id')).distinct()
+            content = Item.objects.filter(shipped=False).values("category", "state").annotate(count=Count('id'), pk=Min(first_pk)).distinct()
         else:
             wh = 1 if location == "EU" else 2 if location == "USA" else 3 if location == "ASIA" else 4
-            content = Item.objects.filter(warehouse=wh, shipped=False).values("category", "state").annotate(count=Count('id')).distinct()
+            content = Item.objects.filter(warehouse=wh, shipped=False).values("category", "state").annotate(count=Count('id'), pk=Min(first_pk)).distinct()
         return {
             "reg": get_reg_from_request(self.request),
             "style":style,

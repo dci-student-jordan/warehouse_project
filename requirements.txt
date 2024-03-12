@@ -2,9 +2,9 @@ asgiref==3.7.2
 crispy-bootstrap5==2024.2
 Django==5.0.2
 django-crispy-forms==2.1
-getch==1.0
 psycopg2-binary==2.9.9
 pwinput==1.0.3
 python-dotenv==1.0.1
 sqlparse==0.4.4
 typing_extensions==4.10.0
+getch==1.0

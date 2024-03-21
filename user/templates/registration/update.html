@@ -1,0 +1,76 @@
+{% load crispy_forms_tags %}
+<div style="max-height: 75vh; overflow-y: auto;">
+    <form method="post" action="{% url 'account' user.id %}" id="new-form">
+    <h3>Update Your Account data here:</h3>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button class="btn btn-outline-light" method="post" id="submitMess" type="submit">Update</button>
+</form>
+<p><a href="{% url 'password_change' %}">Change password</a></p>
+<p class="errorlist">{{message}}</p>
+{% if user.is_authenticated %}
+    {% if user.is_staff %}
+        {% if working_hours %}
+            <h3>Your working times:</h3>
+            <ul>
+            {% for day in working_hours %}
+                <li>{{ day.get_week_day_display }}: {{ day.start_time }} - {{ day.end_time }}</li>
+            {% endfor %}
+            </ul>
+            <p><a href="{% url 'list_workinhours' %}">list of all employees' working hours</a></p>
+        {% endif %}
+        {% if edits %}
+            <h3>Your last edited Shop-Items:</h3>
+            <ul>
+            {% for edit in edits %}
+                <li>'{{ edit.item.name }}' on {{ edit.edited_at }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% if orders %}
+            <h3>Your last ordered Shop-Items:</h3>
+            <ul>
+            {% for order in orders %}
+                <li>{{order.amount}} '{{ order.item.first.name }}' on {{ order.ordered_at }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% if contacts %}
+            <h3>Your messages:</h3>
+            <ol>
+            {% for contact in contacts %}
+                <li><h4>{{contact.user}} wrote to you on {{contact.datetime}}:</h4>
+                    <p>{{ contact.message }}</p>
+                    {% for comunication in contact.communications.all %}
+                        <p><span style="font-style: italic;">{{comunication.user}}:</span> {{ comunication.message }} ({{ comunication.datetime }})</p>
+                    {% endfor %}
+                    <form method="post" action="{% url 'reply_to_contact' contact.pk %}">
+                        {% csrf_token %}
+                        {{ reply_form|crispy }}
+                        <button class="btn btn-outline-light" type="submit">Reply</button>
+                    </form>
+                </li>
+            {% endfor %}
+            </ol>
+        {% endif %}
+    {% endif %}
+    {% if communications %}
+        <h3>Your messages:</h3>
+        <ol>
+        {% for communication in communications %}
+            <li><h4>On {{ communication.datetime }} you wrote to {{ communication.employee.name }}:</h4>
+                <p>{{ communication.message }}</p>
+                {% for reply in communication.communications.all %}
+                    <p><span style="font-style: italic;">{{ reply.user }}:</span> {{ reply.message }} ({{ reply.datetime }})</p>
+                {% endfor %}
+                <form method="post" action="{% url 'reply_to_contact' communication.pk %}">
+                    {% csrf_token %}
+                    {{ reply_form|crispy }}
+                    <button class="btn btn-outline-light" type="submit">Reply</button>
+                </form>            
+            </li>
+        {% endfor %}
+        </ol>
+    {% endif %}
+{% endif %}
+</div>

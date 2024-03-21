@@ -1,0 +1,31 @@
+body {
+    background-image: url(../Pics/asky.jpg);
+    background-position-y: 100%;
+    background-size: cover;
+}
+
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:rgb(240, 184, 42);
+}
+
+a, .btn {
+    color:rgb(240, 184, 42);
+    font-size: larger;
+}
+
+@media screen and (min-width:800px) {
+    main {
+        justify-content:center;
+        text-align:center;
+    }
+    
+    section {
+        margin-right: 27vw;
+    }
+    
+    
+    footer {
+        margin-left: 37vw;
+    }
+}

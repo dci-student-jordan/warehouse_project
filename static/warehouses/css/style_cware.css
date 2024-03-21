@@ -1,0 +1,32 @@
+body {
+    background-image: url(../Pics/cwarehouse.jpeg);
+    background-position-y: 100%;
+    background-size: cover;
+}
+
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:aqua;
+}
+
+a, .btn {
+    color:aqua;
+    font-size: larger;
+}
+
+@media screen and (min-width:800px) {
+    main {
+        justify-content:stretch;
+        text-align:start;
+    }
+
+    section {
+        margin-right: 17vw;
+        margin-left: 11vw;
+    }
+
+
+    footer {
+        margin-right: 27vw;
+    }
+}

@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static style %}">
+{% endblock %}
+{% block content %}
+<h1>Are you {{user.username}}, the employee?</h1>
+<p>If so, you can connect your old user from the commandlinetool to your account by typing your password here:</p>
+<form method="post">
+    {% csrf_token %}
+    {{form|crispy }}
+    <input class="btn btn-outline-light" type="submit" name="submit" value="Connect">
+</form>
+{% endblock %}

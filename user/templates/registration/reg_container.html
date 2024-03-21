@@ -1,0 +1,14 @@
+{% load static %}
+<div style="display:flex; justify-content: right; align-items: right;">
+    {% if user.is_authenticated %}
+        <button class="btn btn-outline-light" onclick="loadUserForm('{% url 'contact' %}')">Contact</button>
+        <button class="btn btn-outline-light" onclick="loadUserForm('{% url 'account' user.id%}')">my account</button>
+        <button class="btn btn-outline-light" onclick="loadUserForm('{% url 'logout' %}')">log out</button>
+    {% else %}
+        <button class="btn btn-outline-light" type="button" id="signup" onclick="loadUserForm('{% url 'signup' %}')">sign up here</button>
+        <button class="btn btn-outline-light" type="button" id="login" onclick="loadUserForm('{% url 'login' %}')">log in here</button>
+    {% endif %}
+</div>
+<div id='dynamicContent'>
+</div>
+<script src="{% static 'warehouses/scripts/reg.js' %}"></script>

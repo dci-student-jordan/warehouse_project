@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static style %}">
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{form|crispy }}
+    <input class="btn btn-outline-light" type="submit" name="submit" value="Update">
+</form>
+{% endblock %}

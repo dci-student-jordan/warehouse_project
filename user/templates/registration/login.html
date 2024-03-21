@@ -1,0 +1,8 @@
+{% load crispy_forms_tags %}
+<form method="post" action="{% url 'login' %}" id="new-form">
+    <h3>Log in as registered user:</h3>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button class="btn btn-outline-light" method="post" type="submit">Log In</button>
+</form>
+<p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>

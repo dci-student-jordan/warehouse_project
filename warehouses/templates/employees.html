@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static style %}">
+    <style>
+        .italic-link {
+          font-style: italic;
+        }
+    </style>
+{% endblock %}
+{% block content%}
+<ul>
+    {% for employee, working_hours in employee_working_hours.items %}
+        <li>{{ employee.name }}</li>
+        <ul>
+            {% for hour in working_hours %}
+                <li>{{ hour.get_week_day_display }}: {{ hour.start_time }} - {{ hour.end_time }}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

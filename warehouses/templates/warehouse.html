@@ -1,0 +1,53 @@
+{% extends "main.html" %}
+{% load custom_filters %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static style %}">
+{% endblock %}
+{% block content%}
+    {% for item in content%}
+        <div style="display: flex; justify-content: end;">
+        {% if item.category|ends_with_s %}
+        <p><a href="{% url 'filtered_items' location 'state' item.state %}">{{item.state}}</a> <a href="{% url 'filtered_items' location 'category' item.category %}">{{item.category}}</a>. {% if item.count %} ({{item.count}} available) {% endif %}{% if user.is_authenticated and user.is_staff%} <a class="btn btn-outline-warning" href="{% url 'product_detail' item.pk %}" class="italic-link" style="margin-left: 20px;">(update here)</a><a class="btn btn-outline-danger" href="{% url 'order' location item.state item.category %}" class="bold-link" style="margin-left: 20px;"> BUY</a>{% endif %}</p>
+        {% else %}
+        <p><a href="{% url 'filtered_items' location 'state' item.state %}">{{item.state|glue}}</a> <a href="{% url 'filtered_items' location 'category' item.category %}">{{item.category}}</a>. {% if item.count %} ({{item.count}} available) {% endif %}{% if user.is_authenticated and user.is_staff%} <a class="btn btn-outline-warning" href="{% url 'product_detail' item.pk %}" class="italic-link" style="margin-left: 20px;">(update here)</a><a class="btn btn-outline-danger" href="{% url 'order' location item.state item.category %}" class="bold-link" style="margin-left: 20px;"> BUY</a>{% endif %}</p>
+        {% endif %}
+        </div>
+    {% endfor %}
+    {% for link in content_links %}
+    <div style="display: flex; justify-content: end;">
+        {% if filtered_by == 'category' %}
+        <p><a href="{% url 'filtered_items' location 'category' link.category %}">{{link.category}}</a>.{% if link.count %} ({{link.count}} available) {% endif %}</p>
+        {% elif filtered_by == 'name' %}
+        <p><a href="{% url 'filtered_items' location 'state' link.state %}">{{link.state|glue}}</a> <a href="{% url 'filtered_items' location 'category' link.category %}">{{link.category}}</a>.{% if link.count %} ({{link.count}} available) {% endif %}{% if user.is_authenticated and user.is_staff %}<a class="btn btn-outline-danger" href="{% url 'order' location link.state link.category %}" class="bold-link" style="margin-left: 20px;"> BUY</a>{% endif %}</p>
+        {% else %}
+        <p><a href="{% url 'filtered_items' location 'state' link.state %}">{{link.state}}</a>.{% if link.count %} ({{link.count}} available) {% endif %}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% if search_item %}
+        <h3>{{search_prompt}}</h3>
+            <div style="display: flex;">
+                <input  class="form-control" id="searchInput" type="text" placeholder="enter search term here" onkeydown="start_search(this)">
+                <button class="btn btn-outline-light" onclick="search()" style="margin-left: 20px;">Search</button>
+            </div>
+        <script>
+            function start_search(element) {
+                if(event.key === 'Enter') {
+                    search()
+                }
+            }
+            function search() {
+                // Get the value from the search input
+                var searchTerm = document.getElementById("searchInput").value;
+
+                // Construct the URL with the search term
+                var url = "{% url 'search_result' location|default:'ALL' 'SEARCHTERM' %}".replace("SEARCHTERM", encodeURIComponent(searchTerm));
+
+
+                // Redirect the user to the search URL
+                window.location.href = url;
+            }
+        </script>
+    {% endif %}
+{% endblock %}

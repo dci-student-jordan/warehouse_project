@@ -1,0 +1,121 @@
+.loginShower {
+    background-image: linear-gradient(to right, rgba(206, 206, 205, 0.084) ,rgba(163, 110, 4, 0.691));
+    text-align: end;
+}
+
+
+.loginShower h4 {
+    color: rgba(229, 202, 147, 0.386);
+    margin-right: 50px;
+}
+
+
+body {
+    background-image: url('../Pics/sky.jpg');
+    background-attachment: fixed;
+    background-position-x: 56.5%;
+    background-position-y: 70%;
+    background-size: cover;
+    border-radius: 10px;
+    text-shadow: 1px 3px 2px rgba(0, 0, 0, 0.26), 0 0.1em .1em rgba(0, 0, 0, 0.253), 0.02em 0 0.1em rgba(0, 0, 0, 0.178);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    /* Add a smooth transition for the opacity property */
+    transition: opacity 0.5s ease-in-out;
+    backdrop-filter: blur(5px); /* Adjust the blur amount as needed */
+    -webkit-backdrop-filter: blur(5px);
+    padding: 20px;
+}
+
+body.loaded {
+    /* Increase the opacity to 1 when the 'loaded' class is applied */
+    opacity: 1;
+}
+
+header {
+    background-image: linear-gradient(rgba(172, 157, 128, 0.521), rgba(66, 44, 1, 0.226));
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 20px; 
+    transition: 0.5s ease;
+    text-align: center;
+}
+
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    color:wheat;
+}
+
+a, .btn {
+    color:wheat;
+    font-size: larger;
+}
+
+nav, .dropdown-menu {
+    background-image: radial-gradient(rgba(121, 84, 11, 0.459) ,rgba(54, 44, 24, 0.651));
+}
+
+.login {
+    display: none;
+    top: 5px;
+    position: absolute;
+    right: 20px;
+    padding: 20px;
+    margin: 20px;
+    width: fit-content;
+    height: fit-content;
+    background-image: radial-gradient(rgba(204, 145, 28, 0.753),rgba(59, 47, 12, 0.753));
+}
+
+.login input, textarea, button, input {
+    background-color: rgb(85, 74, 52);
+}
+
+/* ul {
+    list-style: none;
+} */
+
+main {
+    flex-grow: 1;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+main section {
+    display: block;
+    font-size: smaller;
+    background-image: linear-gradient(to left, rgba(239, 222, 195, 0.429) ,rgba(66, 48, 5, 0.701));
+}
+
+footer {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    text-align: right;
+    background-image: linear-gradient(to left,rgba(66, 44, 1, 0.691), rgba(191, 183, 166, 0.582));
+
+}
+@media screen and (min-width:800px) {
+    
+    main section{
+        display: flex;
+        justify-content: space-around;
+        min-height: 47vh;
+    }
+
+    .loginShower {
+        display: flex;
+        justify-content: space-between;
+    }
+
+
+	.navbar .nav-item .dropdown-menu{ display: none; }
+	.navbar .nav-item:hover .nav-link{   }
+	.navbar .nav-item:hover .dropdown-menu{ display: block; }
+	.navbar .nav-item .dropdown-menu{ margin-top:0; }
+
+}

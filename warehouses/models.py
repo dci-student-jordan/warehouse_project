@@ -4,6 +4,7 @@ from cli.toys import glued_string
 from django.core.exceptions import ValidationError
 import json
 from datetime import datetime
+from functools import partial
 
 # Create your models here.
 
@@ -49,8 +50,8 @@ def _get_category_choices():
 
 class Item(models.Model):
     '''Model For warehouse Items'''
-    state = models.CharField(max_length=100, choices=_get_state_choices)
-    category = models.CharField(max_length=100, choices=_get_category_choices)
+    state = models.CharField(max_length=100)#, choices=partial(_get_state_choices))
+    category = models.CharField(max_length=100)#, choices=partial(_get_category_choices))
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     date_of_stock = models.DateTimeField()
     name = models.CharField(max_length=100, null=True)
@@ -64,10 +65,8 @@ class Item(models.Model):
             return f"{state} {category.lower()}"
 
     def save(self, *args, **kwargs):
-        print("Try setting name")
         if not self.name:
             self.name = self.get_default_item_name(self.state, self.category)
-            print("setting name:", self.name)
         super().save(*args, **kwargs)
 
 

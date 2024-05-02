@@ -1,0 +1,31 @@
+body {
+    background-image: url(../Pics/bewarehouse.jpeg);
+    background-position-y: 100%;
+    background-size: cover;
+}
+
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:chartreuse;
+}
+
+a, .btn {
+    color:chartreuse;
+    font-size: larger;
+}
+@media screen and (min-width:800px) {
+    main {
+        justify-content:space-between;
+        text-align:right;
+    }
+
+    section {
+        margin-right: 17vw;
+        margin-left: 7vw;
+    }
+
+
+    footer {
+        margin-left: 37vw;
+    }
+}

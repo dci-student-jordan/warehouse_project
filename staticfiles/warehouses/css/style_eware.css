@@ -1,0 +1,16 @@
+/* main h1 {
+    font-size: xx-large;
+    color: rgba(237, 215, 172, 0.549);
+    margin-right: 50px;
+}
+
+main section {
+    justify-content: center;
+    text-align:justify;
+}
+
+@media screen and (min-width:800px) {
+    main section p {
+        font-size:medium;
+    }
+} */

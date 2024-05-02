@@ -1,0 +1,32 @@
+body {
+    background-image: url(../Pics/dwarehouse.jpeg);
+    background-position-y: 100%;
+    background-size: cover;
+}
+
+header, nav, section, footer, .loginShower, body, .nav-link, .dropdown-item, .login {
+    border-radius: 5px;
+    color:rgb(238, 255, 0); 
+}
+
+a, .btn {
+    color:rgb(238, 255, 0);
+    font-size: larger;
+}
+
+@media screen and (min-width:800px) {
+    main {
+        justify-content:center;
+        text-align:center;
+    }
+
+    section {
+        margin-right: 27vw;
+        margin-left: 13vw;
+    }
+
+
+    footer {
+        margin-right: 21vw;
+    }
+}

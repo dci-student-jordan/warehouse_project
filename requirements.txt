@@ -8,4 +8,5 @@ python-dotenv==1.0.1
 sqlparse==0.4.4
 typing_extensions==4.10.0
 getch==1.0
-gunicorn
+gunicorn==21.2.00
+whitenoise==6.6.0

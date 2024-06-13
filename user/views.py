@@ -34,7 +34,6 @@ class ContactView(LoginRequiredMixin, FormView):
         return json_response(ContactForm(), csrf(self.request)['csrf_token'], 'contact', self.get_context_data(message=f"Your message has been submitted successfully."))
     
     def form_invalid(self, form: Any):
-        print("Invalid CONTACT")
         return super().form_invalid(form)
 
 
@@ -108,14 +107,11 @@ def custom_logout(request):
 
 def offer_employee_status(user):
     if Employee.objects.filter(user=user).exists():
-        print(f"{user} has employee status")
         return False
     elif Employee.objects.filter(name=user):
         # offer employee status
-        print(f"offer employee status to {user}")
         return True
     else:
-        print(f"{user} is no employee")
         return False
 
 
@@ -131,21 +127,15 @@ class ConnectEmployeeView(LoginRequiredMixin, FormView):
             if emp.password == given_password:
                 emp.user = self.request.user
                 emp.save()
-                print("Stored Emp")
                 make_staff = User.objects.get(pk=self.request.user.pk)
                 make_staff.is_staff = True
                 make_staff.save()
 
             else:
-                print("Passwords not equal")
                 raise ValidationError(f"That's not the right password, {self.request.user.username}.")
-        else:
-            print("Emp not found")
-
         return super().form_valid(form)
     
     def form_invalid(self, form):
-        print("Invalid:", form)
         return super().form_invalid(form)
     
 
@@ -184,7 +174,6 @@ class UpdateUserView(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if 'message' in request.POST:
-            print("HERE, PLEASE")
             form = ReplyForm(request.POST)
             message = form.cleaned_data['message']
             contact_id = kwargs.get('contact_id')

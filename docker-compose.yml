@@ -22,8 +22,10 @@ services:
         volumes:
             - .:/app
             - static_volume:/app/staticfiles
-        command: >
-            sh -c "python manage.py migrate warehouses 0001_initial --no-input && python manage.py shell -c 'from cli.db.populate_database import main; main(\"--initial\")' && python manage.py migrate warehouses 0002_alter_item_category_alter_item_state && python manage.py collectstatic --no-input && gunicorn djangowhp.wsgi:application -b 0.0.0.0:8001"
+        command: 
+        # need a hack here to have the right order of migrations and populating the database
+        >
+            sh -c "if [ ! -f /.initialized ]; then python manage.py makemigrations warehouses && python manage.py migrate warehouses 0001_initial --no-input && python manage.py shell -c 'from cli.db.populate_database import main; main(\"--initial\")' && python manage.py migrate warehouses 0002_alter_item_category_alter_item_state && python manage.py migrate && python manage.py collectstatic --no-input && gunicorn djangowhp.wsgi:application -b 0.0.0.0:8001 && touch /.initialized; fi"
         depends_on:
             - db
 

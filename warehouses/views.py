@@ -153,7 +153,6 @@ class ProductDetailView(StaffRequiredMixin, LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        print("Form data:", form.cleaned_data)
         return self.render_to_response(self.get_context_data(form=form))
 
     

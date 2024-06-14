@@ -11,7 +11,8 @@ def create_jsons_from_data():
     if not already present."""
 
     # create data dir if not present
-    if not "data" in os.listdir("."):
+    content = os.listdir(".")
+    if not "data" in content and not os.path.isdir(content["data"]):
         os.makedirs("data")
 
         # create stock.json from data.py

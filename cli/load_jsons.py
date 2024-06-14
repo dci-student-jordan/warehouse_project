@@ -53,7 +53,11 @@ class Loader:
         """Parse the personnel list."""
         Employee = self.__load_class("Employee")
 
-        employees = load_data("personnel")
+        if not self.from_data:
+            employees = load_data("employees")
+        else:
+            import data
+            employees = data.personnel
         return [Employee(**employee) for employee in employees]
 
     def __parse_stock(self):
@@ -104,7 +108,7 @@ def load_json_file(file_path):
 
 def load_data(what):
     """Load all data of stock and personnel
-    from database into memory."""
+    from sql database into memory."""
     connection, cur = None, None
     try:
         connection, cur = connect()

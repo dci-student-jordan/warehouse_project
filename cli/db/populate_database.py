@@ -1,6 +1,13 @@
 from sys import argv, path
 path.append("../")
 from warehouses.models import Warehouse, Item, Employee, populate_emp_working_hours
+import sqlite3
+
+def connect():
+    """Connect to the database."""
+    connection = sqlite3.connect("db.sqlite3")
+    cur = connection.cursor()
+    return connection, cur
 
 def populate_warehouses(items):
     # populating the databases warehouse table:

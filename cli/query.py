@@ -1,5 +1,17 @@
 """Command line interface to query the stock."""
 
+import sys
+import os
+import django
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Set the DJANGO_SETTINGS_MODULE environment variable
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangowhp.settings')
+
+# Initialize Django
+django.setup()
+
 from classes import User, Employee
 from load_jsons import Loader
 from save_jsons import write_stock_to_json, create_jsons_from_data
@@ -258,7 +270,7 @@ def check_for_employee(user: User):
     Takes a User, compares his name with the names of Employees
     and provides the option to login
     """
-    personnel = Loader(model="personnel")
+    personnel = Loader(model="personnel", from_data=True)
     personnel_names = [str(x) for x in personnel]
     if str(user) in personnel_names:
         employee_candidate = None
@@ -344,7 +356,7 @@ def main():
     # first make sure the json data is available
     create_jsons_from_data()
     global printer, stock, username
-    stock = Loader(model="stock")
+    stock = Loader(model="stock", from_data=True)
     # load the typewriter
     printer = PrinterToy(0.0005)
     # Get the user name

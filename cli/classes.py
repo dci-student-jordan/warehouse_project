@@ -114,12 +114,12 @@ class User():
         Returns Employee if successfully authenticated
         or None
         """
-        personnel = Loader(model="personnel") \
+        personnel = Loader(model="personnel", from_data=True) \
             if len(args) < 1 else args[0]
-        print("PERSONNEL:", *personnel)
+        # print("PERSONNEL:", *personnel)
         personnel_names = \
             [str(x) for x in personnel] if len(args) < 2 else args[1]
-        print("\nNAMES:", personnel_names)
+        # print("\nNAMES:", personnel_names)
         employee_candidate = None
 
         def ask_password(mess):

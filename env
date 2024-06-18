@@ -1,0 +1,12 @@
+DB_NAME = postgres
+DB_USER = postgres
+DB_PASSWORD = posgres
+DB_HOST = warehousedbserver
+DB_PORT = 5432
+SECRET_KEY = 'django-insecure-hu$sjy0v4b#c@15&r$g)zx=1bj77*@xxx128nuk9pca20*_=v6'
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=warehouses
+DJANGO_DEBUG=FALSE
+DJANGO_ALLOWED_HOSTS='127.0.0.1, localhost, 0.0.0.0, warehousedbserver'
+DJANGO_CSRF_TRUSTED_ORIGINS='http://127.0.0.1, http://localhost, http://0.0.0.0'

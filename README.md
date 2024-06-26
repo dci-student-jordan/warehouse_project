@@ -22,6 +22,6 @@ If you want to run with postgres, you would have to install it, unless you don't
 
 
 ## CLI
-The task started as a cli tool, which you can also test by running "python cli/query.py" - credentials for placing an order here you find in the above mentioned "Personnel" list.
+The task started as a cli tool, which you can also test by running "python query.py" from within the /cli folder - credentials for placing an order here you find in the above mentioned "Personnel" list (create and activate a venv first and run "pip install -r requirements" first).
 
 This project is published under the [MIT-Licence](https://github.com/dci-student-jordan/warehouse_project/blob/main/LICENSE.txt)
